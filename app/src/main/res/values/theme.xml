@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App.Start" parent="Theme.AppCompat.DayNight">
+        <item name="android:windowSplashScreenBackground">@color/white</item> <!-- 배경색 -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/start_icon</item> <!-- 아이콘 -->
+        <item name="android:windowSplashScreenAnimationDuration">3000</item> <!-- 애니메이션 지속 시간 -->
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+</resources>

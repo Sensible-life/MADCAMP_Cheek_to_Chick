@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bigger_content_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+
+
+    <!-- TODO: 메인 콘텐츠 영역 들어가야함 -->
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="#F0FF00" >
+    </FrameLayout>
+
+    <!-- Include 하단바 -->
+    <include
+        layout="@layout/bottom_bar"
+        android:id="@+id/botom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="visible"/>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:gravity="center"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/background_bottom_circle">
+
+        <ImageView
+            android:id='@+id/bottom_circle'
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/background_center_circle"/>
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="27dp"
+            android:layout_gravity="center"
+            android:src="@drawable/icon_book"/>
+    </FrameLayout>
+</FrameLayout>

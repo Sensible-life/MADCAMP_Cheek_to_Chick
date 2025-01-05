@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/brightYellow"
+    android:paddingHorizontal="40dp">
+
+    <!-- 환영 메시지 -->
+
+    <!-- 계정이 없으신가요? -->
+
+    <!-- 가입하기 링크 -->
+
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="140dp"
+        android:fontFamily="@font/g_title_bold"
+        android:text="돌아오신 걸 환영해요!"
+        android:textColor="@color/lightBlack"
+        android:textSize="33sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/noAccountText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/g_title_light"
+        android:text="계정이 없으신가요?"
+        android:textColor="@color/lightBlack"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@id/welcomeText"
+        app:layout_constraintTop_toBottomOf="@id/welcomeText" />
+
+    <TextView
+        android:id="@+id/signupText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/g_title_light"
+        android:text="가입하기"
+        android:textSize="12sp"
+        android:textColor="#8A76DB"
+        android:layout_marginStart="4dp"
+        app:layout_constraintStart_toEndOf="@id/noAccountText"
+        app:layout_constraintTop_toTopOf="@id/noAccountText" />
+
+    <!-- 아이디 입력 -->
+    <EditText
+        android:id="@+id/idEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="아이디"
+        android:background="@null"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="40dp"
+        android:textColorHint="#A5A5A5"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/signupText"
+        app:layout_constraintStart_toStartOf="@id/welcomeText"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 아이디 밑줄 -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#FFD700"
+        android:layout_marginTop="3dp"
+        app:layout_constraintTop_toBottomOf="@id/idEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 비밀번호 입력 -->
+    <FrameLayout
+        android:id="@+id/passwordEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/idEditText"
+        app:layout_constraintStart_toStartOf="@id/welcomeText"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingBottom="3dp">
+
+        <EditText
+            android:id="@+id/passwordEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호"
+            android:background="@null"
+            android:layout_marginRight="40dp"
+            android:textColorHint="#A5A5A5"
+            android:textSize="16sp"
+            android:inputType="textPassword" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:src="@drawable/icon_reveal_password"/>
+    </FrameLayout>
+
+    <!-- 비밀번호 밑줄 -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#FFD700"
+        app:layout_constraintTop_toBottomOf="@id/passwordEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 비밀번호 기억하기 -->
+    <CheckBox
+        android:id="@+id/rememberPasswordCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="비밀번호 기억하기"
+        android:textColor="#A5A5A5"
+        android:textSize="12sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/passwordEditText"
+        app:layout_constraintStart_toStartOf="@id/welcomeText" />
+
+    <!-- 비밀번호 잊으셨나요? -->
+    <TextView
+        android:id="@+id/forgotPasswordText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="비밀번호를 잊으셨나요?"
+        android:textColor="#8A76DB"
+        android:textSize="12sp"
+        android:layout_marginTop="7dp"
+        app:layout_constraintTop_toTopOf="@id/rememberPasswordCheckbox"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 로그인 버튼 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/loginButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/yellow"
+        android:layout_marginTop="36dp"
+        app:layout_constraintTop_toBottomOf="@id/rememberPasswordCheckbox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="로그인하기"
+            android:textSize="17sp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/g_title_medium"
+            android:layout_gravity="center"
+            android:paddingVertical="10dp"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 구분선 -->
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="36dp"
+        android:background="#FFD700"
+        app:layout_constraintEnd_toStartOf="@id/divideText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginButton" />
+
+    <TextView
+        android:id="@+id/divideText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="또는 다음으로 로그인하기"
+        android:textSize="9sp"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="10dp"
+        app:layout_constraintStart_toEndOf="@id/divider"
+        app:layout_constraintTop_toBottomOf="@id/loginButton"
+        app:layout_constraintEnd_toStartOf="@id/divider2"/>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#FFD700"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintStart_toEndOf="@id/divideText"
+        app:layout_constraintTop_toBottomOf="@id/loginButton"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- 소셜 로그인 버튼 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/googleLoginButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/source_google_bar">
+
+            <ImageView
+                android:layout_width="31dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="1dp"
+                android:src="@drawable/icon_google"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="구글 계정으로 계속하기"
+                android:textColor="@color/lightBlack"
+                android:fontFamily="@font/g_title_medium"
+                android:layout_gravity="center"
+                android:paddingVertical="10dp" />
+        </FrameLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/kakaoLoginButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/yellow"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/googleLoginButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/source_google_bar">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/icon_kakao"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="카카오 계정으로 계속하기"
+                android:textColor="@color/lightBlack"
+                android:fontFamily="@font/g_title_medium"
+                android:layout_gravity="center"
+                android:paddingVertical="10dp"/>
+        </FrameLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
