@@ -22,7 +22,6 @@ object RetrofitClient {
             level = HttpLoggingInterceptor.Level.BODY
         }
         val apiKey = BuildConfig.OPENAI_API_KEY
-        Log.d("key", apiKey.toString())
         // API 키를 헤더에 추가하는 인터셉터
         val apiKeyInterceptor = Interceptor { chain ->
             val request = chain.request().newBuilder()
