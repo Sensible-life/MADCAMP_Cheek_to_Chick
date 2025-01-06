@@ -26,6 +26,12 @@ import com.google.ar.core.examples.kotlin.helloar.GPT.GPTRepository_image
 import com.google.ar.core.examples.kotlin.helloar.book.BookActivity
 import com.google.ar.core.examples.kotlin.helloar.home.HomeFragment
 import com.google.gson.JsonObject
+import com.mpackage.network.ApiService
+import com.mpackage.network.Book
+import com.mpackage.network.BookSaveApi
+import com.mpackage.network.Page
+import com.mpackage.network.RetrofitClient
+import com.mpackage.network.utils.toMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -33,6 +39,14 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import org.w3c.dom.Text
+import retrofit2.Retrofit.*
+
+
+
+
+
+
+
 
 @Suppress("DEPRECATION")
 class CreateFragment4 : Fragment() {
@@ -108,6 +122,13 @@ class CreateFragment4 : Fragment() {
         // selectedText.text = response
         val jsonData = createJsonWithImages(response, imageUrls)
         println(jsonData.toString(4))
+
+        // jsonData 를 서버로 전송
+        Log.d("Function Call", "sendBookDataToServer called")
+        sendBookDataToServer(jsonData)
+        Log.d("JSON Data", jsonData.toString())
+
+
         val imageView = view?.findViewById<ImageView>(R.id.cover_image) ?: return
         if (imageUrls.isNotEmpty()) {
             Glide.with(requireContext())
@@ -121,7 +142,43 @@ class CreateFragment4 : Fragment() {
             intent.putExtra("bookData", jsonParameter)
             startActivity(intent)
         }
+
     }
+
+    private fun sendBookDataToServer(jsonData: JSONObject){
+
+        // JSON 데이터를 Book 객체로 변환
+        val bookData = Book(
+            title = jsonData.getString("title"),
+            pages = jsonData.getJSONArray("pages").let { pagesArray ->
+                List(pagesArray.length()) { i ->
+                    val pageObject = pagesArray.getJSONObject(i)
+                    Page(
+                        content = pageObject.getString("content"),
+                        image_url = pageObject.getString("image_url")
+                    )
+                }
+            }
+        )
+
+        val apiService = RetrofitClient.retrofit.create(BookSaveApi::class.java)
+
+        Log.d("Debug", "Converted JSON to Map: $bookData")
+
+        // 코루틴을 통해 서버로 데이터 전송
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                apiService.sendBookData(bookData) // suspend fun 호출
+                Log.d("Server Response", "Book data successfully sent to server")
+            } catch (e: Exception) {
+                Log.e("Server Error", "Error sending book data: ${e.message}")
+            }
+        }
+
+    }
+
+
+
 
     private fun showLoadingFragment() {
         // 로딩 화면 표시
@@ -167,8 +224,10 @@ class CreateFragment4 : Fragment() {
         }
 
         json.put("pages", pagesArray)
+
         json.put("likes", false)
         json.put("ranking", 0)
+
         return json
     }
 

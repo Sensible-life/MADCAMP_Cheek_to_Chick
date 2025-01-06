@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Window
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.ar.core.examples.kotlin.helloar.book.BookActivity
 import com.google.ar.core.examples.kotlin.helloar.login.LoginActivity
+import com.kakao.sdk.common.KakaoSdk.keyHash
+import com.kakao.sdk.common.util.Utility
 
 @Suppress("DEPRECATION")
 class SplashActivity : AppCompatActivity() {
@@ -19,6 +22,13 @@ class SplashActivity : AppCompatActivity() {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)    //자동 생성 상단바 없앰
         super.onCreate(savedInstanceState)
         setContentView(R.layout.loadingscreen_layout)
+
+        // 키 해시 얻기
+        val DkeyHash = Utility.getKeyHash(this)
+        Log.d("DKeyHash", "키 해시: $keyHash")
+        // 릴리즈 키 해시 확인
+        val RkeyHash = Utility.getKeyHash(this)
+        Log.d("RKeyHash", "릴리즈 키 해시: $keyHash")
 
         // 애니메이션 비활성화
         overridePendingTransition(0, 0)

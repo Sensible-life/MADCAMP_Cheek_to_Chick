@@ -14,6 +14,7 @@ import com.github.kittinunf.fuel.Fuel
 import com.google.ar.core.examples.kotlin.helloar.community.CreateFragment
 import com.google.ar.core.examples.kotlin.helloar.home.HomeFragment
 import com.google.ar.core.examples.kotlin.helloar.profile.ProfileFragment
+import com.kakao.sdk.common.util.Utility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private val client = OkHttpClient()
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
 
         val splashScreen = installSplashScreen()
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)    //자동 생성 상단바 없앰
