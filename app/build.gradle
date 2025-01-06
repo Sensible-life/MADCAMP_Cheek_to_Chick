@@ -43,10 +43,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "OPENAI_API_KEY", "\"${OPENAI_API_KEY}\""
+            buildConfigField "String", "ELEVEN_API_KEY", "\"${ELEVEN_API_KEY}\""
         }
 
         debug {
             buildConfigField "String", "OPENAI_API_KEY", "\"${project.properties['OPENAI_API_KEY']}\""
+            buildConfigField "String", "ELEVEN_API_KEY", "\"${ELEVEN_API_KEY}\""
         }
     }
     kotlinOptions {
@@ -79,7 +81,7 @@ dependencies {
     //retrofit settings
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
 
     //gpt api settings
@@ -101,4 +103,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:23.4.0'
     implementation 'com.android.support:support-v4:23.4.0'
     implementation 'io.github.cdimascio:dotenv-kotlin:6.3.1'
+
+    implementation "com.google.android.exoplayer:exoplayer:2.19.1"
+    implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
+
 }

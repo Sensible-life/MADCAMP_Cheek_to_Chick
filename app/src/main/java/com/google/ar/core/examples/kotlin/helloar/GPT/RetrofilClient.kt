@@ -57,15 +57,4 @@ object RetrofitClient {
             .build()
             .create(DallEApi::class.java)
     }
-
-    fun loadEnvFile(context: Context): Properties {
-        val properties = Properties()
-        val file = File("${context.filesDir}/.env")
-        if (file.exists()) {
-            properties.load(file.inputStream())
-        } else {
-            Log.e("ENV", ".env file not found at: ${file.absolutePath}")
-        }
-        return properties
-    }
 }

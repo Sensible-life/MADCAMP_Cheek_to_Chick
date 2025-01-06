@@ -62,14 +62,13 @@ class CreateFragment4 : Fragment() {
         showLoadingFragment()
 
         // 프롬프트 정의
-        val inputPrompt = previousText + "라는 교훈을 가진 어린이들을 위한 9페이지짜리 동화책을 만들 거야. " +
+        val inputPrompt = previousText + "라는 교훈을 가진 어린이들을 위한 2페이지짜리 동화책을 만들 거야. " +
                 "주인공 캐릭터는" + currentText + "이고, 대상 독자는" + endText +"의 나이를 가지고 있어." +
-                "9페이지짜리 동화책을 만들어 줘. 각 페이지는 3줄 정도면 괜찮을 것 같아." +
+                "2페이지짜리 동화책을 만들어 줘. 각 페이지는 3줄 정도면 괜찮을 것 같아." +
                 "이야기의 기승전결이 명확했으면 좋겠고, 내용 흐름의 연결이 자연스러우며, 중복되는 내용의 페이지가 최대한" +
-                "적었으면 좋겠어. 문장 끝에는 개행문자를 넣어줘." +
-                "답변의 형태는, 서론 생략하고 제목: \n 1. (내용) \n 2.(내용) \n" +
-                "3. (내용) \n 4. (내용) \n 5. (내용) \n 6. (내용) \n 7. (내용) \n" +
-                "8. (내용) \n 9. (내용)"
+                "적었으면 좋겠어. 문장 끝에는 개행문자를 넣어줘. 전체 문장 그 어디에도 쌍따옴표나, 따옴표가 들어가지" +
+                "않도록 해 줘." +
+                "답변의 형태는, 서론 생략하고 제목: \n 1. (내용) \n 2.(내용) \n"
         var imagePrompt = ""
 
         // 비동기 작업으로 API 호출
@@ -82,12 +81,12 @@ class CreateFragment4 : Fragment() {
                         val eng = repository.getChatResponse(engPrompt)
                         CoroutineScope(Dispatchers.Main).launch {
                             try {
-                                val imageUrls = generateImagesWithDelay(eng, 10, 3000L) // 12초 딜레이 적용
+                                val imageUrls = generateImagesWithDelay(eng, 3, 3000L) // 12초 딜레이 적용
                                 imageUrls.forEach { url ->
                                     println("Generated Image URL: $url")
                                 }
                                 hideLoadingFragment()
-                                populateFlexboxLayout(response, imageUrls, selectedText)
+                                populateFlexboxLayout(eng, imageUrls, selectedText)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
@@ -151,7 +150,7 @@ class CreateFragment4 : Fragment() {
         val json = JSONObject()
 
         // 제목 추출
-        val titleRegex = Regex("^제목: (.+)")
+        val titleRegex = Regex("^Title: (.+)")
         val title = titleRegex.find(response)?.groups?.get(1)?.value ?: "제목 없음"
         json.put("title", title)
 
