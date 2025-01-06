@@ -33,8 +33,8 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // 키 해시 얻기
-        val keyHash = Utility.getKeyHash(this)
-        Log.d("KeyHash", "키 해시: $keyHash")
+        //val keyHash = Utility.getKeyHash(this)
+        //Log.d("KeyHash", "키 해시: $keyHash")
 
 
 
