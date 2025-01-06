@@ -224,6 +224,10 @@ class CreateFragment4 : Fragment() {
         }
 
         json.put("pages", pagesArray)
+
+        json.put("likes", false)
+        json.put("ranking", 0)
+
         return json
     }
 

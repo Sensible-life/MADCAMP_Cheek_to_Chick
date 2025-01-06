@@ -23,6 +23,7 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.screen_home, container, false)
 
         val bookshelf: ImageView = view.findViewById(R.id.bookshelf)
+        val book1: ImageView = view.findViewById(R.id.book_1)
 
         // 초기 위치: 화면 오른쪽 바깥
         bookshelf.translationX = 1000f
