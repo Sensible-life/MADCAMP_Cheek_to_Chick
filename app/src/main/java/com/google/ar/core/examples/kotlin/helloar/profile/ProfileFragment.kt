@@ -1,9 +1,17 @@
 package com.google.ar.core.examples.kotlin.helloar.profile
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.ar.core.examples.kotlin.helloar.R
 import android.widget.ImageView
