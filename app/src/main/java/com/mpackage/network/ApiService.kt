@@ -15,7 +15,7 @@ import retrofit2.http.POST
 interface ApiService {
     @POST("/auth/kakao/token")
     @FormUrlEncoded
-    suspend fun sendAccessToken(@Field("access_token") accessToken: String): Response<Any>
+    suspend fun sendAccessToken(@Field("access_token") accessToken: String): Response<UserProfile>
 
 }
 

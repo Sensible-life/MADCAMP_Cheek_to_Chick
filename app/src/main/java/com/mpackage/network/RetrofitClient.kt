@@ -1,11 +1,16 @@
 package com.mpackage.network
 
+import com.google.gson.annotations.SerializedName
 import com.kakao.sdk.template.model.Content
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
+
+
+// Post Book Contents
 data class Book(
     val title: String,
     val pages: List<Page>
@@ -15,6 +20,14 @@ data class Page(
     val content: String,
     val image_url: String
 )
+
+// user profile data class
+data class UserProfile(
+    val username: String,
+    val email: String,
+    val profileImage: String
+)
+
 
 
 object RetrofitClient {

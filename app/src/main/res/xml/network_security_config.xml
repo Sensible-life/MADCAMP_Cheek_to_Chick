@@ -2,5 +2,6 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">143.248.225.199</domain> <!-- Replace with your server's IP/domain -->
+        <domain includeSubdomains="true">k.kakaocdn.net</domain>
     </domain-config>
 </network-security-config>

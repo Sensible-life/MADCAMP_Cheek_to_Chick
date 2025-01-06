@@ -1,5 +1,7 @@
 package com.google.ar.core.examples.kotlin.helloar.login
 
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.google.ar.core.examples.kotlin.helloar.MainActivity
 import com.google.ar.core.examples.kotlin.helloar.R
 import com.kakao.sdk.auth.model.OAuthToken
@@ -15,6 +18,7 @@ import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
 import com.mpackage.network.ApiService
+import com.mpackage.network.UserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -22,6 +26,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+
+
 
 @Suppress("DEPRECATION")
 class LoginActivity : AppCompatActivity() {
@@ -119,6 +125,12 @@ class LoginActivity : AppCompatActivity() {
                 val response = apiService.sendAccessToken(accessToken)
                 if (response.isSuccessful) {
                     // 서버 응답 성공
+                    val userProfile = response.body() // 서버 응답 데이터
+
+                    userProfile?.let {
+                        saveUserProfileToSharedPreferences(it) // SharedPreferences에 저장
+                    }
+                    // 서버 응답 성공
                     Log.i("AccessToken", "서버 응답 성공: ${response.body()}")
                 } else {
                     // 서버 응답 실패
@@ -130,4 +142,21 @@ class LoginActivity : AppCompatActivity() {
         }
 
     }
+    private fun saveUserProfileToSharedPreferences(userProfile: UserProfile) {
+
+        val sharedPreferences = getSharedPreferences("ProfileSharedPreferences", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        editor.putString("username", userProfile.username)
+        editor.putString("email", userProfile.email)
+        editor.putString("profileImage", userProfile.profileImage)
+        editor.apply() // 저장
+
+        // 저장된 값 확인 로그 추가
+        Log.d(TAG, "SharedPreferences saved username: ${userProfile.username}")
+        Log.d(TAG, "SharedPreferences saved email: ${userProfile.email}")
+        Log.d(TAG, "SharedPreferences saved profileImage: ${userProfile.profileImage}")
+    }
+
 }
+
