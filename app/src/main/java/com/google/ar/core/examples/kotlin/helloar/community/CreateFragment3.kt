@@ -54,7 +54,7 @@ class CreateFragment3 : Fragment() {
         val avatarButton = view.findViewById<TextView>(R.id.my_avatar)
         avatarButton.visibility = View.GONE
 
-        editText.hint = "해당하는 연령대가 없다면 \"8-10\"과 같이 입력해 주세요."
+        editText.hint = "\"8-10\"과 같이 입력해 주세요."
 
         nextButton.setOnClickListener {
             val editTextValue = editText.text.toString() // EditText의 값 가져오기
@@ -104,8 +104,8 @@ class CreateFragment3 : Fragment() {
             val textView = TextView(requireContext()).apply {
                 text = topic
                 setPadding(36, 24, 36, 24)
-                setTextColor(resources.getColor(android.R.color.black))
-                setBackgroundResource(R.drawable.background_topic) // 배경 drawable
+                setTextColor(resources.getColor(R.color.lightBlack))
+                setBackgroundResource(R.drawable.background_topic) // 기본 배경
                 layoutParams = FlexboxLayout.LayoutParams(
                     FlexboxLayout.LayoutParams.WRAP_CONTENT,
                     FlexboxLayout.LayoutParams.WRAP_CONTENT
@@ -114,12 +114,23 @@ class CreateFragment3 : Fragment() {
                 }
                 isClickable = true // 클릭 가능 설정
                 setOnClickListener {
-                    // 클릭 시 선택된 텍스트를 아래에 표시
+                    // 클릭 시 다른 항목 초기화
+                    for (i in 0 until flexboxLayout.childCount) {
+                        val child = flexboxLayout.getChildAt(i)
+                        if (child is TextView) {
+                            child.setBackgroundResource(R.drawable.background_topic) // 초기 배경
+                        }
+                    }
+                    // 현재 클릭된 항목의 배경만 변경
+                    setBackgroundResource(R.drawable.background_topic_selected)
+
+                    // 선택된 텍스트를 EditText에 설정
                     editText.setText(topic)
                 }
             }
             flexboxLayout.addView(textView)
         }
+
     }
 
     override fun onResume() {

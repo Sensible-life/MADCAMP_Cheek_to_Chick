@@ -43,7 +43,7 @@ class CreateFragment : Fragment() {
         avatarButton.visibility = View.GONE
 
         // 로딩 화면 표시
-        showLoadingFragment()
+        showLoadingFragment(1)
 
         nextButton.setOnClickListener {
             val editTextValue = editText.text.toString() // EditText의 값 가져오기
@@ -69,7 +69,7 @@ class CreateFragment : Fragment() {
                 "후보 10개만 제작해 줄래? 보내준 교훈은 동화책의 주제로 사용될 수 있어야 해" +
                 "답변은 엔터로 구분된, 10개의 주제만 보내주면 될 것 같아." +
                 "꼭 10개를 보내줘야 하고, ~에 대한 교훈의 형식이 아닌, 예를 들자면, \'솔직함의 중요성\'" +
-                "과 같이 간단명료한 답변이 10개 필요해. 각 답변은 15자 이내였으면 좋겠어. 답변은 한글로 주렴."
+                "과 같이 간단명료한 답변이 10개 필요해. 각 답변은 10자 이내였으면 좋겠어. 답변은 한글로 주렴."
 
         // 비동기 작업으로 API 호출
         CoroutineScope(Dispatchers.Main).launch {
@@ -115,8 +115,8 @@ class CreateFragment : Fragment() {
             val textView = TextView(requireContext()).apply {
                 text = topic
                 setPadding(36, 24, 36, 24)
-                setTextColor(resources.getColor(android.R.color.black))
-                setBackgroundResource(R.drawable.background_topic) // 배경 drawable
+                setTextColor(resources.getColor(R.color.lightBlack))
+                setBackgroundResource(R.drawable.background_topic) // 기본 배경
                 layoutParams = FlexboxLayout.LayoutParams(
                     FlexboxLayout.LayoutParams.WRAP_CONTENT,
                     FlexboxLayout.LayoutParams.WRAP_CONTENT
@@ -125,18 +125,29 @@ class CreateFragment : Fragment() {
                 }
                 isClickable = true // 클릭 가능 설정
                 setOnClickListener {
-                    // 클릭 시 선택된 텍스트를 아래에 표시
+                    // 클릭 시 다른 항목 초기화
+                    for (i in 0 until flexboxLayout.childCount) {
+                        val child = flexboxLayout.getChildAt(i)
+                        if (child is TextView) {
+                            child.setBackgroundResource(R.drawable.background_topic) // 초기 배경
+                        }
+                    }
+                    // 현재 클릭된 항목의 배경만 변경
+                    setBackgroundResource(R.drawable.background_topic_selected)
+
+                    // 선택된 텍스트를 EditText에 설정
                     editText.setText(topic)
                 }
             }
             flexboxLayout.addView(textView)
         }
+
     }
 
-    private fun showLoadingFragment() {
-        // 로딩 화면 표시
+    private fun showLoadingFragment(pageNumber: Int) {
+        val loadingFragment = LoadingFragment.newInstance(pageNumber)
         parentFragmentManager.beginTransaction()
-            .add(R.id.bigger_content_frame, LoadingFragment(), "LoadingFragment")
+            .add(R.id.bigger_content_frame, loadingFragment, "LoadingFragment")
             .commit()
     }
 
