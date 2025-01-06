@@ -12,6 +12,7 @@ import com.google.ar.core.examples.kotlin.helloar.MainActivity
 import com.google.ar.core.examples.kotlin.helloar.R
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.KakaoSdk
+import com.kakao.sdk.common.util.Utility
 import com.kakao.sdk.user.UserApiClient
 import com.mpackage.network.ApiService
 import kotlinx.coroutines.Dispatchers
@@ -29,9 +30,13 @@ class LoginActivity : AppCompatActivity() {
 
     private val TAG = "KaKaoLogin"
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // 키 해시 얻기
+        val keyHash = Utility.getKeyHash(this)
+        Log.d("KeyHash", "키 해시: $keyHash")
+
+
 
         val splashScreen = installSplashScreen()
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)    //자동 생성 상단바 없앰
@@ -98,7 +103,7 @@ class LoginActivity : AppCompatActivity() {
             .baseUrl("http://143.248.225.199:3000") // 서버의 실제 IP 주소로 변경
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        
+
         // OkHttpClient Interceptor 로 네트워크 요청 디버깅
         val client = OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {

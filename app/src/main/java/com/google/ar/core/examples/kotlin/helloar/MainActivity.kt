@@ -2,6 +2,7 @@ package com.google.ar.core.examples.kotlin.helloar
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Window
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +11,7 @@ import android.widget.LinearLayout
 import com.google.ar.core.examples.kotlin.helloar.community.CreateFragment
 import com.google.ar.core.examples.kotlin.helloar.home.HomeFragment
 import com.google.ar.core.examples.kotlin.helloar.profile.ProfileFragment
+import com.kakao.sdk.common.util.Utility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,6 +21,8 @@ import kotlinx.coroutines.launch
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
 
         val splashScreen = installSplashScreen()
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)    //자동 생성 상단바 없앰
