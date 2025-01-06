@@ -1,5 +1,6 @@
 package com.mpackage.network
 
+import BooksApi
 import com.google.gson.annotations.SerializedName
 import com.kakao.sdk.template.model.Content
 import okhttp3.OkHttpClient
@@ -26,6 +27,16 @@ data class UserProfile(
     val username: String,
     val email: String,
     val profileImage: String
+)
+
+
+// Get Book Contents, pages 는 Page data class 참조
+data class LikedBooks(
+    val title: String,
+    val pages: List<Page>,
+    val likes: Boolean,
+    val ranking: Int,
+    val createdAt: String
 )
 
 
@@ -65,7 +76,10 @@ object RetrofitClient {
             }
             .build()
     }
-
+    //Returning Info of Liked Books
+    val booksApi: BooksApi by lazy {
+        retrofit.create(BooksApi::class.java)
+    }
 
 
 }

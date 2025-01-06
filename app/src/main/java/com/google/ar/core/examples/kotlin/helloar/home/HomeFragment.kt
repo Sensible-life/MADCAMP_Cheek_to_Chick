@@ -1,5 +1,6 @@
 package com.google.ar.core.examples.kotlin.helloar.home
 
+import BooksApi
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.graphics.Color
@@ -12,8 +13,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.google.ar.core.examples.kotlin.helloar.BooksDatabaseHelper
 import com.google.ar.core.examples.kotlin.helloar.R
+import com.mpackage.network.LikedBooks
+import com.mpackage.network.RetrofitClient
+import com.mpackage.network.RetrofitClient.retrofit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
 
@@ -28,7 +38,9 @@ class HomeFragment : Fragment() {
         val screenHome = view.findViewById<FrameLayout>(R.id.screenHome)
         val parentView = screenHome.parent as? ViewGroup
         val dragArea = parentView?.findViewById<FrameLayout>(R.id.dragArea)
-
+        fetchBooksFromServer()
+        val books = loadBooksFromDatabase()
+        Log.d("김문원퇴근여부", books.toString())
         val bookshelf: FrameLayout = view.findViewById(R.id.bookshelf)
         val book1: ImageView = view.findViewById(R.id.book_1)
         val book2: ImageView = view.findViewById(R.id.book_2)
@@ -152,4 +164,42 @@ class HomeFragment : Fragment() {
 
         return view
     }
+
+    private fun saveBooksToDatabase(books: List<LikedBooks>) {
+        val dbHelper = BooksDatabaseHelper(requireContext())
+        dbHelper.insertBooks(books)
+    }
+
+    private fun loadBooksFromDatabase(): List<LikedBooks> {
+        val dbHelper = BooksDatabaseHelper(requireContext())
+        return dbHelper.getAllBooks()
+    }
+
+    private fun fetchBooksFromServer() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitClient.booksApi.getLikedBooks()
+                Log.d("response", response.toString())
+                if (response.isSuccessful) {
+                    // 서버 응답 데이터(body)를 LikedBooks 리스트로 변환
+                    val likedBooks: List<LikedBooks> = response.body() ?: emptyList()
+                    saveBooksToDatabase(likedBooks)
+                    Log.d("김문원", "saved books to database")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Books saved successfully", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to fetch books", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
 }
