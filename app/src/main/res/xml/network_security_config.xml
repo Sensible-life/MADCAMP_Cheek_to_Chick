@@ -3,5 +3,6 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">143.248.225.199</domain> <!-- Replace with your server's IP/domain -->
         <domain includeSubdomains="true">k.kakaocdn.net</domain>
+        <domain includeSubdomains="true">api.elevenlabs.io</domain> <!-- Eleven Labs API 도메인 추가 -->
     </domain-config>
 </network-security-config>
