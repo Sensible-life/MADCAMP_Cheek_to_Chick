@@ -2,8 +2,11 @@ package com.google.ar.core.examples.kotlin.helloar.community
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +20,11 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.ar.core.examples.kotlin.helloar.R
 import com.google.android.flexbox.FlexboxLayout
+import com.google.ar.core.examples.kotlin.helloar.ContentWithPath
 import com.google.ar.core.examples.kotlin.helloar.GPT.DalleRequest
 import com.google.ar.core.examples.kotlin.helloar.GPT.GPTRepository
 import com.google.ar.core.examples.kotlin.helloar.GPT.GPTRepository_book
@@ -36,16 +42,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import org.w3c.dom.Text
 import retrofit2.Retrofit.*
-
-
-
-
-
-
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.net.URL
 
 
 @Suppress("DEPRECATION")
@@ -76,13 +83,16 @@ class CreateFragment4 : Fragment() {
         showLoadingFragment()
 
         // 프롬프트 정의
-        val inputPrompt = previousText + "라는 교훈을 가진 어린이들을 위한 2페이지짜리 동화책을 만들 거야. " +
+        val inputPrompt = previousText + "라는 교훈을 가진 어린이들을 위한 8페이지짜리 동화책을 만들 거야. " +
                 "주인공 캐릭터는" + currentText + "이고, 대상 독자는" + endText +"의 나이를 가지고 있어." +
-                "2페이지짜리 동화책을 만들어 줘. 각 페이지는 3줄 정도면 괜찮을 것 같아." +
+                "8페이지짜리 동화책을 만들어 줘. 각 페이지는 3줄 정도면 괜찮을 것 같아." +
                 "이야기의 기승전결이 명확했으면 좋겠고, 내용 흐름의 연결이 자연스러우며, 중복되는 내용의 페이지가 최대한" +
                 "적었으면 좋겠어. 문장 끝에는 개행문자를 넣어줘. 전체 문장 그 어디에도 쌍따옴표나, 따옴표가 들어가지" +
                 "않도록 해 줘." +
-                "답변의 형태는, 서론 생략하고 제목: \n 1. (내용) \n 2.(내용) \n"
+                "답변의 형태는, 서론 생략하고 제목: \n 1. (내용) \n 2.(내용) \n 3. (내용) \n" +
+                " 4.(내용) \n 5. (내용) \n" +
+                " 6.(내용) \n 7. (내용) \n" +
+                " 8.(내용) "
         var imagePrompt = ""
 
         // 비동기 작업으로 API 호출
@@ -95,7 +105,7 @@ class CreateFragment4 : Fragment() {
                         val eng = repository.getChatResponse(engPrompt)
                         CoroutineScope(Dispatchers.Main).launch {
                             try {
-                                val imageUrls = generateImagesWithDelay(eng, 3, 3000L) // 12초 딜레이 적용
+                                val imageUrls = generateImagesWithDelay(eng, 9, 3000L) // 12초 딜레이 적용
                                 imageUrls.forEach { url ->
                                     println("Generated Image URL: $url")
                                 }
@@ -128,21 +138,50 @@ class CreateFragment4 : Fragment() {
         sendBookDataToServer(jsonData)
         Log.d("JSON Data", jsonData.toString())
 
+        val contents = mutableListOf<String>() // 페이지 내용 리스트
+        val pagesArray = jsonData.getJSONArray("pages")
+
+        // 각 페이지의 "content" 값을 추출
+        for (i in 0 until pagesArray.length()) {
+            val pageObject = pagesArray.getJSONObject(i)
+            val content = pageObject.getString("content")
+            contents.add(content)  // "content" 값을 contents 리스트에 추가
+            Log.d("Content", contents.toString())
+        }
 
         val imageView = view?.findViewById<ImageView>(R.id.cover_image) ?: return
         if (imageUrls.isNotEmpty()) {
-            Glide.with(requireContext())
-                .load(imageUrls[0]) // 첫 번째 URL 사용 (표지 이미지)
-                .into(imageView)
+            setImageFromBase64(imageUrls[0], imageView)
         }
+        val savedFilePaths = mutableListOf<String>()
+        val contentsWithPaths = mutableListOf<ContentWithPath>()
+
+// content와 imagePath를 함께 묶어서 저장
+        for (index in 0 until contents.size) {
+            val content = contents[index]
+            val imageUrl = imageUrls.getOrNull(index + 1)  // imageUrl[i+1] (0번 인덱스를 건너뜀)
+
+            imageUrl?.let { base64Image ->
+                val filename = "image_${index + 1}.jpg"
+                val filePath = saveBase64ImageToFile(base64Image, requireContext(), filename)
+                filePath?.let {
+                    savedFilePaths.add(it)
+                    // content와 imagePath를 쌍으로 묶어 contentsWithPaths에 추가
+                    contentsWithPaths.add(ContentWithPath(content, it))
+                }
+            }
+        }
+
+// 클릭 시 imagePath와 content를 BookActivity로 전달
         imageView.setOnClickListener {
             val intent = Intent(context, BookActivity::class.java)
             val jsonParameter = jsonData.toString() // JSON 객체를 문자열로 변환
             Log.d("From fragment", jsonParameter)
-            intent.putExtra("bookData", jsonParameter)
+
+            // content와 imagePath를 묶어서 전달
+            intent.putExtra("contentsWithPaths", ArrayList(contentsWithPaths))  // contents와 filePaths를 함께 전달
             startActivity(intent)
         }
-
     }
 
     private fun sendBookDataToServer(jsonData: JSONObject){
@@ -158,7 +197,10 @@ class CreateFragment4 : Fragment() {
                         image_url = pageObject.getString("image_url")
                     )
                 }
-            }
+            },
+            title_img = jsonData.getString("title_img"),
+            likes = jsonData.getBoolean("likes"),
+            ranking = jsonData.getInt("ranking")
         )
 
         val apiService = RetrofitClient.retrofit.create(BookSaveApi::class.java)
@@ -216,6 +258,8 @@ class CreateFragment4 : Fragment() {
         val matches = contentRegex.findAll(response)
 
         val pagesArray = JSONArray()
+        json.put("title_img", imageUrls[0])
+
         matches.forEachIndexed { index, matchResult ->
             val pageObject = JSONObject()
             pageObject.put("content", matchResult.groups[1]?.value ?: "내용 없음")
@@ -225,8 +269,9 @@ class CreateFragment4 : Fragment() {
 
         json.put("pages", pagesArray)
 
-        json.put("likes", false)
+        json.put("likes", true)
         json.put("ranking", 0)
+
 
         return json
     }
@@ -272,7 +317,10 @@ class CreateFragment4 : Fragment() {
                 val response = repository_image.generateImage(requestPrompt)
 
                 // 생성된 이미지 URL 추가
-                imageUrls.addAll(response)
+                response.forEach { imageUrl ->
+                    val base64Image = encodeImageToBase64(imageUrl)  // 이미지 URL을 Base64로 인코딩
+                    imageUrls.add(base64Image)  // Base64로 변환된 이미지를 추가
+                }
 
                 // 딜레이 추가
                 if (batchIndex < batches - 1) {
@@ -305,4 +353,68 @@ class CreateFragment4 : Fragment() {
     }
 
 
+    suspend fun encodeImageToBase64(imageUrl: String): String {
+        return try {
+            // 네트워크 작업을 IO 스레드에서 처리
+            withContext(Dispatchers.IO) {
+                // URL에서 이미지 다운로드
+                val url = URL(imageUrl)
+                val inputStream: InputStream = url.openStream()
+
+                // Bitmap으로 변환
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+
+                // Bitmap을 ByteArray로 변환
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+                val imageBytes = byteArrayOutputStream.toByteArray()
+
+                // Base64로 인코딩
+                Base64.encodeToString(imageBytes, Base64.NO_WRAP)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "" // 실패 시 빈 문자열 반환
+        }
+    }
+
+    fun setImageFromBase64(base64String: String, imageView: ImageView) {
+        try {
+            // Base64 문자열을 디코딩하여 바이트 배열로 변환
+            val decodedString: ByteArray = Base64.decode(base64String, Base64.NO_WRAP)
+
+            // 바이트 배열을 Bitmap으로 변환
+            val bitmap: Bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+
+            // Bitmap을 ImageView에 설정
+            imageView.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun saveBase64ImageToFile(base64String: String, context: Context, filename: String): String? {
+        return try {
+            // Base64 문자열을 디코딩하여 바이트 배열로 변환
+            val decodedString: ByteArray = Base64.decode(base64String, Base64.NO_WRAP)
+
+            // 바이트 배열을 Bitmap으로 변환
+            val bitmap: Bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+
+            // 파일 경로 정의 (앱의 내부 저장소)
+            val file = File(context.filesDir, filename)
+
+            // 파일에 Bitmap을 PNG 형식으로 저장
+            val fileOutputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+
+            // 저장된 파일의 경로 반환
+            file.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null // 오류 발생 시 null 반환
+        }
+    }
 }

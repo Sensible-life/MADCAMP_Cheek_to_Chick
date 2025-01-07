@@ -14,7 +14,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 // Post Book Contents
 data class Book(
     val title: String,
-    val pages: List<Page>
+    val pages: List<Page>,
+    val title_img: String,
+    val likes: Boolean,
+    val ranking: Int,
 )
 
 data class Page(
@@ -36,7 +39,8 @@ data class LikedBooks(
     val pages: List<Page>,
     val likes: Boolean,
     val ranking: Int,
-    val createdAt: String
+    val createdAt: String,
+    val title_img: String
 )
 
 

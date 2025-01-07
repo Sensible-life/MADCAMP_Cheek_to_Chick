@@ -3,8 +3,12 @@ package com.google.ar.core.examples.kotlin.helloar.home
 import BooksApi
 import android.annotation.SuppressLint
 import android.content.ClipData
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.DragEvent
 import android.view.LayoutInflater
@@ -15,8 +19,11 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.google.ar.core.examples.kotlin.helloar.BooksDatabaseHelper
+import com.google.ar.core.examples.kotlin.helloar.LikedBookManager
 import com.google.ar.core.examples.kotlin.helloar.R
+import com.google.gson.Gson
 import com.mpackage.network.LikedBooks
 import com.mpackage.network.RetrofitClient
 import com.mpackage.network.RetrofitClient.retrofit
@@ -24,6 +31,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.net.URL
 
 class HomeFragment : Fragment() {
 
@@ -34,13 +49,10 @@ class HomeFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        var booksList: List<LikedBooks> = emptyList()
         val view = inflater.inflate(R.layout.screen_home, container, false)
         val screenHome = view.findViewById<FrameLayout>(R.id.screenHome)
         val parentView = screenHome.parent as? ViewGroup
-        val dragArea = parentView?.findViewById<FrameLayout>(R.id.dragArea)
-        fetchBooksFromServer()
-        val books = loadBooksFromDatabase()
-        Log.d("김문원퇴근여부", books.toString())
         val bookshelf: FrameLayout = view.findViewById(R.id.bookshelf)
         val book1: ImageView = view.findViewById(R.id.book_1)
         val book2: ImageView = view.findViewById(R.id.book_2)
@@ -49,61 +61,56 @@ class HomeFragment : Fragment() {
         val book5: ImageView = view.findViewById(R.id.book_5)
         val book6: ImageView = view.findViewById(R.id.book_6)
 
-// book1~book6에 동일한 LongClickListener 설정
+        book1.setTag(R.id.book_1, 0)
+        book2.setTag(R.id.book_2, 1)
+        book3.setTag(R.id.book_3, 2)
+        book4.setTag(R.id.book_4, 3)
+        book5.setTag(R.id.book_5, 4)
+        book6.setTag(R.id.book_6, 5)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val books = fetchBooksFromServer()
+            LikedBookManager.setBooks(books)
+            Log.d("book", books.toString())
+            // books 리스트를 UI에 반영하는 코드
+            if (books.isNotEmpty()) {
+                for (i in 0 until minOf(books.size, 6)) {
+                    val gson = Gson()
+                    val jsonData = gson.toJson(books[i])  // 각 책에 대해 처리
+                    val jsonD = JSONObject(jsonData)
+                    Log.d("iterator", i.toString())
+                    // "title_img"를 가져와서 Base64 디코딩
+                    val firstImageUrl = jsonD.getString("title_img")
+                    if (firstImageUrl.isNotEmpty()) {
+                        val decodedImage = decodeBase64Image(firstImageUrl)
+
+                        // 디코딩된 이미지를 해당 ImageView에 설정
+                        decodedImage?.let {
+                            val imageView = when (i) {
+                                0 -> book1
+                                1 -> book2
+                                2 -> book3
+                                3 -> book4
+                                4 -> book5
+                                5 -> book6
+                                else -> null
+                            }
+
+                            imageView?.setImageBitmap(it)
+                        }
+                    }
+                }
+            } else {
+                Log.d("Books", "No books found")
+            }
+        }
+
         listOf(book1, book2, book3, book4, book5, book6).forEach { book ->
             book.setOnLongClickListener { view ->
                 val clipData = ClipData.newPlainText("", "") // 드래그 데이터를 설정 (비어 있음)
                 val shadow = View.DragShadowBuilder(view) // 드래그 시 그림자 효과
                 view.startDragAndDrop(clipData, shadow, view, 0)
                 true
-            }
-        }
-
-
-        // 드래그 및 드롭 이벤트 처리
-        dragArea?.setOnDragListener { view, event ->
-            when (event.action) {
-                DragEvent.ACTION_DRAG_STARTED -> {
-                    // 드래그 시작 시
-                    view.setBackgroundColor(Color.LTGRAY)
-                    true
-                }
-                DragEvent.ACTION_DRAG_ENTERED -> {
-                    // 드래그 영역 안으로 들어왔을 때
-                    view.setBackgroundColor(Color.YELLOW)
-                    true
-                }
-                DragEvent.ACTION_DRAG_LOCATION -> {
-                    // 드래그 중일 때 (위치 업데이트)
-                    true
-                }
-                DragEvent.ACTION_DRAG_EXITED -> {
-                    // 드래그 영역을 벗어났을 때
-                    view.setBackgroundColor(Color.LTGRAY)
-                    true
-                }
-                DragEvent.ACTION_DROP -> {
-                    // 드롭 시
-                    val droppedView = event.localState as View
-                    val x = event.x
-                    val y = event.y
-
-                    // 드롭된 뷰 위치 업데이트
-                    val layoutParams = FrameLayout.LayoutParams(droppedView.width, droppedView.height)
-                    layoutParams.leftMargin = x.toInt() - droppedView.width / 2
-                    layoutParams.topMargin = y.toInt() - droppedView.height / 2
-                    droppedView.layoutParams = layoutParams
-
-                    // 뷰 색상 복원
-                    view.setBackgroundColor(Color.LTGRAY)
-                    true
-                }
-                DragEvent.ACTION_DRAG_ENDED -> {
-                    // 드래그가 끝났을 때
-                    view.setBackgroundColor(Color.TRANSPARENT)
-                    true
-                }
-                else -> false
             }
         }
 
@@ -117,7 +124,7 @@ class HomeFragment : Fragment() {
             .start()
 
 
-// bookshelf TouchListener 설정
+        // bookshelf TouchListener 설정
         bookshelf.setOnTouchListener { v, event ->
             val parentWidth = (v.parent as View).width // 부모 레이아웃의 너비
             val viewWidth = v.width // 뷰의 너비
@@ -160,46 +167,45 @@ class HomeFragment : Fragment() {
             }
             true
         }
-
-
         return view
     }
 
-    private fun saveBooksToDatabase(books: List<LikedBooks>) {
-        val dbHelper = BooksDatabaseHelper(requireContext())
-        dbHelper.insertBooks(books)
-    }
 
-    private fun loadBooksFromDatabase(): List<LikedBooks> {
-        val dbHelper = BooksDatabaseHelper(requireContext())
-        return dbHelper.getAllBooks()
-    }
-
-    private fun fetchBooksFromServer() {
-        CoroutineScope(Dispatchers.IO).launch {
+    private suspend fun fetchBooksFromServer(): List<LikedBooks> {
+        return withContext(Dispatchers.IO) {
             try {
                 val response = RetrofitClient.booksApi.getLikedBooks()
                 Log.d("response", response.toString())
                 if (response.isSuccessful) {
-                    // 서버 응답 데이터(body)를 LikedBooks 리스트로 변환
+                    // 서버 응답 데이터(body)를 LikedBooks 리스트로 변환하여 반환
                     val likedBooks: List<LikedBooks> = response.body() ?: emptyList()
-                    saveBooksToDatabase(likedBooks)
                     Log.d("김문원", "saved books to database")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Books saved successfully", Toast.LENGTH_SHORT).show()
-                    }
+                    likedBooks // 성공 시 LikedBooks 리스트 반환
                 } else {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Failed to fetch books", Toast.LENGTH_SHORT).show()
-                    }
+                    // 실패 시 빈 리스트 반환
+                    Log.d("김문원", "Failed to fetch books")
+                    emptyList<LikedBooks>()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    // 예외 처리 시 메인 스레드에서 토스트 메시지 표시
                     Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+                emptyList<LikedBooks>() // 예외 발생 시 빈 리스트 반환
             }
         }
     }
 
+    fun decodeBase64Image(base64String: String): Bitmap? {
+        return try {
+            // Base64 문자열을 바이트 배열로 디코딩
+            val decodedBytes: ByteArray = Base64.decode(base64String, Base64.NO_WRAP)
 
+            // 바이트 배열을 Bitmap으로 변환
+            BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null // 실패하면 null 반환
+        }
+    }
 }

@@ -1,7 +1,10 @@
 package com.google.ar.core.examples.kotlin.helloar.book
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +35,9 @@ class BookPageFragment : Fragment() {
 
     private var mediaPlayer: MediaPlayer? = null
 
+    private lateinit var content: String
+    private lateinit var imagePath: String
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,7 +49,7 @@ class BookPageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val pageContent = arguments?.getString("content")
-        val pageImageUrl = arguments?.getString("imageUrl")
+        val pageImagePath = arguments?.getString("imagePath")
 
         val textView = view.findViewById<TextView>(R.id.page_text)
         val imageView = view.findViewById<ImageView>(R.id.page_image)
@@ -51,13 +57,12 @@ class BookPageFragment : Fragment() {
 
         textView.text = pageContent
 
-        context?.let {
-            Glide.with(it).load(pageImageUrl).into(imageView)
+        if (pageImagePath != null) {
+            setImageFromFile(pageImagePath, imageView) // 파일 경로에서 이미지 로드
         }
 
         playButton.setOnClickListener {
             if (!pageContent.isNullOrEmpty()) {
-                // requestAndPlayTTS(pageContent)
                 CoroutineScope(Dispatchers.Main).launch {
                     sendTTSRequestWithFuel(pageContent)
                 }
@@ -68,16 +73,15 @@ class BookPageFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(content: String, imageUrl: String): BookPageFragment {
+        fun newInstance(content: String, imagePath: String): BookPageFragment {
             val fragment = BookPageFragment()
             val args = Bundle()
             args.putString("content", content)
-            args.putString("imageUrl", imageUrl)
+            args.putString("imagePath", imagePath)
             fragment.arguments = args
             return fragment
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -85,18 +89,16 @@ class BookPageFragment : Fragment() {
         mediaPlayer = null
     }
 
+    // TTS 요청과 음성 파일 재생
     fun sendTTSRequestWithFuel(content: String) {
-        val elevenLabsUrl = "https://api.elevenlabs.io/v1/text-to-speech/e79ZA2i13VgSZjumnows/stream?output_format=mp3_22050_32"
-        // val apiKey = BuildConfig.ELEVEN_API_KEY
+        val elevenLabsUrl = "https://api.elevenlabs.io/v1/text-to-speech/fTFTil72L5XZs6FNuoZU/stream?output_format=mp3_22050_32"
         val apiKey = BuildConfig.ELEVEN_API_KEY
-        // JSON 요청 데이터 생성
         val jsonData = """
         {
             "text": "$content"
         }
     """.trimIndent()
 
-        // 요청 실행
         Fuel.post(elevenLabsUrl)
             .header(
                 "xi-api-key" to "$apiKey",
@@ -107,48 +109,60 @@ class BookPageFragment : Fragment() {
             .response { _, response, result ->
                 when (result) {
                     is Result.Success -> {
-                        println("Response received successfully")
-
                         // MP3 데이터를 임시 파일로 저장
                         val tempFile = File.createTempFile("tts_audio", ".mp3")
                         tempFile.outputStream().use { outputStream ->
                             outputStream.write(result.get())
                         }
-                        println("Audio file saved at: ${tempFile.absolutePath}")
-
-                        // MP3 파일 재생
                         playAudio(tempFile)
                     }
                     is Result.Failure -> {
-                        println("Request failed: ${result.getException().message}")
-                        println("Response status: ${response.statusCode} - ${response.responseMessage}")
+                        Log.e("TTS Request", "Request failed: ${result.getException().message}")
+                        Log.e("TTS Request", "Response status: ${response.statusCode} - ${response.responseMessage}")
                     }
                 }
             }
     }
 
+    // 임시 파일에서 오디오 재생
     fun playAudio(file: File) {
         try {
-            val mediaPlayer = MediaPlayer().apply {
+            mediaPlayer = MediaPlayer().apply {
                 setDataSource(file.absolutePath)
                 setOnPreparedListener {
                     it.start()
-                    println("Audio playback started")
+                    Log.d("Audio", "Audio playback started")
                 }
                 setOnCompletionListener {
-                    println("Audio playback completed")
+                    Log.d("Audio", "Audio playback completed")
                     file.delete() // 재생 후 임시 파일 삭제
-                }
-                setOnErrorListener { _, what, extra ->
-                    println("Error during audio playback: what=$what, extra=$extra")
-                    true
                 }
                 prepareAsync()
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            println("Error playing audio: ${e.message}")
+            Log.e("Audio", "Error playing audio: ${e.message}")
         }
     }
 
+    // Base64로 인코딩된 이미지를 ImageView에 표시
+    fun setImageFromBase64(base64String: String, imageView: ImageView) {
+        try {
+            val decodedString: ByteArray = Base64.decode(base64String, Base64.NO_WRAP)
+            val bitmap: Bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+            imageView.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // 파일 경로에서 이미지를 디코딩하여 ImageView에 표시
+    fun setImageFromFile(imagePath: String, imageView: ImageView) {
+        try {
+            val bitmap = BitmapFactory.decodeFile(imagePath)
+            imageView.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

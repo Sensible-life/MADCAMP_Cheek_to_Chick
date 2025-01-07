@@ -11,6 +11,7 @@ import com.mpackage.network.Page
 class BooksDatabaseHelper(context: Context) : SQLiteOpenHelper(context, "Books.db", null, 1) {
 
     override fun onCreate(db: SQLiteDatabase) {
+        resetTable()
         val createTable = """
             CREATE TABLE Books (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,19 +79,27 @@ class BooksDatabaseHelper(context: Context) : SQLiteOpenHelper(context, "Books.d
                 }
 
 
-                books.add(
+                /*books.add(
                     LikedBooks(
                         title = title,
                         pages = p, // JSON 파싱 필요
                         likes = likes,
                         ranking = ranking,
-                        createdAt = createdAt
+                        createdAt = createdAt,
+
                     )
-                )
+                )*/
             } while (cursor.moveToNext())
         }
         cursor.close()
         Log.d("created", books.toString())
         return books
+    }
+
+    fun resetTable() {
+        val db = writableDatabase
+        db.execSQL("DELETE FROM Books") // 테이블 데이터 삭제
+        db.execSQL("VACUUM") // 데이터베이스 최적화
+        db.close()
     }
 }

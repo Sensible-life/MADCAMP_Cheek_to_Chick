@@ -1,42 +1,49 @@
 package com.google.ar.core.examples.kotlin.helloar
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
+import android.view.DragEvent
+import android.view.View
 import android.view.Window
+import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import android.widget.LinearLayout
-import androidx.core.content.ContentProviderCompat.requireContext
-import com.github.kittinunf.fuel.Fuel
+import androidx.lifecycle.Observer
+import com.google.ar.core.examples.kotlin.helloar.BuildConfig
+import com.google.ar.core.examples.kotlin.helloar.book.BookActivity
 import com.google.ar.core.examples.kotlin.helloar.community.CreateFragment
 import com.google.ar.core.examples.kotlin.helloar.home.HomeFragment
 import com.google.ar.core.examples.kotlin.helloar.profile.ProfileFragment
-import com.kakao.sdk.common.util.Utility
+import com.google.gson.Gson
+import com.mpackage.network.LikedBooks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Headers.Companion.toHeaders
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import org.json.JSONObject
-import retrofit2.http.Headers
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.net.URL
-import com.github.kittinunf.fuel.core.extensions.cUrlString
-import com.github.kittinunf.fuel.core.isSuccessful
-import com.github.kittinunf.fuel.core.response
-import com.github.kittinunf.result.Result
 
 
 @Suppress("DEPRECATION")
@@ -46,7 +53,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
 
-
         val splashScreen = installSplashScreen()
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)    //자동 생성 상단바 없앰
 
@@ -54,6 +60,118 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.screen_main)
         supportFragmentManager.beginTransaction().replace(R.id.content_frame, HomeFragment())
             .commit()
+
+        val dragArea = findViewById<FrameLayout>(R.id.dragArea)
+        val colorChange = findViewById<ImageView>(R.id.bottom_circle)
+        val outline = findViewById<ImageView>(R.id.outline)
+        val backCircle = findViewById<ImageView>(R.id.backCircle)
+        val backgroundDark = findViewById<View>(R.id.backgroundDark)
+        val recentBook1 = findViewById<ImageView>(R.id.recentBook_1)
+        val recentBook2 = findViewById<ImageView>(R.id.recentBook_2)
+        val recentBook3 = findViewById<ImageView>(R.id.recentBook_3)
+
+
+        // dragArea에 대한 작업 수행
+        dragArea?.setOnDragListener { view, event ->
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> {
+                    // 드래그 시작 시
+                    // view.setBackgroundColor(Color.LTGRAY)  // 색상 변경
+                    outline.visibility = View.VISIBLE
+                    true
+                }
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    // 드래그가 드롭 영역 안으로 들어왔을 때
+                    Log.d("DRAG", "DROPPED IN!")
+                    //view.setBackgroundColor(Color.YELLOW)  // 색상 변경
+                    colorChange.setBackgroundResource(R.drawable.background_center_circle_yellow)
+                    outline.visibility = View.GONE
+                    true
+                }
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    // 드래그가 드롭 영역을 벗어났을 때
+                    //view.setBackgroundColor(Color.LTGRAY)
+                    colorChange.setBackgroundResource(R.drawable.background_center_circle)
+                    outline.visibility = View.VISIBLE
+                    true
+                }
+                DragEvent.ACTION_DROP -> {
+                    // 드롭 시 (드래그한 뷰를 드롭 위치로 이동)
+                    val droppedView = event.localState as View
+                    val x = event.x
+                    val y = event.y
+
+                    val id = droppedView.id
+                    var selectedBook: LikedBooks = LikedBookManager.lbooks[0]
+
+                    when (id) {
+                        R.id.book_1 -> {
+                            selectedBook = LikedBookManager.lbooks[0]
+                        }
+                        R.id.book_2 -> {
+                            selectedBook = LikedBookManager.lbooks[1]
+                        }
+                        R.id.book_3 -> {
+                            selectedBook = LikedBookManager.lbooks[2]
+                        }
+                        R.id.book_4 -> {
+                            selectedBook = LikedBookManager.lbooks[3]
+                        }
+                        R.id.book_5 -> {
+                            selectedBook = LikedBookManager.lbooks[4]
+                        }
+                        R.id.book_6 -> {
+                            selectedBook = LikedBookManager.lbooks[5]
+                        }
+                    }
+                    // 드롭된 뷰 위치 업데이트
+
+                    selectedBook.let {
+                        val jsonData = Gson().toJson(it)
+                        Log.d("Book Data", jsonData)
+
+                        // JSON 문자열을 JSONObject로 변환
+                        val jsonObject = JSONObject(jsonData)
+                        val pagesArray = jsonObject.getJSONArray("pages")
+                        val contents = mutableListOf<String>() // 페이지 내용 리스트
+                        val savedFilePaths = mutableListOf<String>()
+                        val contentsWithPaths = mutableListOf<ContentWithPath>()
+
+                        for (i in 0 until pagesArray.length()) {
+                            val pageObject = pagesArray.getJSONObject(i)
+                            val content = pageObject.getString("content")
+                            contents.add(content)  // "content" 값을 contents 리스트에 추가
+
+                            val imgUrl = pageObject.getString("image_url")
+                            imgUrl.let { base64Image ->
+                                val filename = "image_${i + 1}.jpg"
+                                val filePath = saveBase64ImageToFile(base64Image, this, filename)
+                                filePath?.let {
+                                    savedFilePaths.add(it)
+                                    // content와 imagePath를 쌍으로 묶어 contentsWithPaths에 추가
+                                    contentsWithPaths.add(ContentWithPath(content, it))
+                                }
+                            }
+                        }
+                        val intent = Intent(this, BookActivity::class.java)
+                        intent.putExtra("contentsWithPaths", ArrayList(contentsWithPaths))
+                        startActivity(intent)
+                    }
+
+                    true
+                }
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    // 드래그가 끝났을 때
+                    // view.setBackgroundColor(Color.TRANSPARENT)
+                    outline.visibility = View.GONE
+                    colorChange.setBackgroundResource(R.drawable.background_center_circle)
+                    true
+                }
+                else -> false
+            }
+        }
+
+
 
         val homeLayout = findViewById<LinearLayout>(R.id.homeLayout)
         val homeButton = findViewById<ImageButton>(R.id.homeButton)
@@ -135,5 +253,220 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.content_frame, ProfileFragment()).commit()
         }
 
+        /*profileButton.setOnClickListener {
+            send3DRequest()
+        }*/
+
+    }
+
+    fun send3DRequest() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val client = OkHttpClient.Builder()
+                .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS) // 연결 타임아웃
+                .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)    // 읽기 타임아웃
+                .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)   // 쓰기 타임아웃
+                .build()
+
+            val apiKey = BuildConfig.D_API_KEY
+
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val body = RequestBody.create(
+                mediaType,
+                """
+            {
+                "key" : "$apiKey",
+                "foreground_ratio": "0.85",
+                "prompt": "a ghost wearing white bedsheet",
+                "output_format": "obj",
+                "num_inference_steps": "30",
+                "resolution": 512,
+                "guidance_scale": "3",
+                "ss_sampling_steps": 50,
+                "slat_sampling_steps": 50,
+                "seed": 0,
+                "temp": "no",
+                "webhook": null,
+                "track_id": null
+            }
+            """.trimIndent()
+            )
+
+            val request = Request.Builder()
+                .url("https://modelslab.com/api/v6/3d/text_to_3d")
+                .post(body)
+                .addHeader("Content-Type", "application/json")
+                .build()
+
+            try {
+                val response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    // 첫 번째 요청의 응답 처리
+                    val responseBody = response.body?.string()
+                    println("Response Body: $responseBody")
+
+                    // JSON 파싱
+                    val jsonResponse = JSONObject(responseBody)
+                    val fetchUrl = jsonResponse.getString("fetch_result") // fetch URL을 가져옵니다.
+                    val id = jsonResponse.getInt("id") // 처리 중인 이미지의 ID 값 추출
+                    Log.d("id", id.toString())
+                    Log.d("fetchUrl", fetchUrl)
+                    delay(60000)
+                    // ID가 있을 경우 fetch API로 요청
+                    fetchResult(id)
+
+                } else {
+                    println("Request failed with status code: ${response.code}")
+                }
+
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun fetchResult(id: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val client = OkHttpClient()
+            val apiKey = BuildConfig.D_API_KEY
+            val mediaType = "application/json".toMediaTypeOrNull()
+            val body = RequestBody.create(
+                mediaType,
+                """
+            {
+                "key" : "$apiKey",
+                "id" : "$id"
+            }
+            """.trimIndent()
+            )
+
+            val request = Request.Builder()
+                .url("https://modelslab.com/api/v6/3d/fetch/$id")
+                .post(body)
+                .addHeader("Content-Type", "application/json")
+                .build()
+
+            try {
+                val response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    // 응답 본문 출력
+                    val responseBody = response.body?.string()
+                    println("Fetch Response Body: $responseBody")
+
+                    val fetchJsonResponse = JSONObject(responseBody)
+                    val outputLinks = fetchJsonResponse.getJSONArray("output")
+
+                    for (i in 0 until outputLinks.length()) {
+                        val link = outputLinks.getString(i)
+                        println("Output Link: $link")
+
+                        // 링크를 웹 브라우저에서 열기 위해 Intent 사용
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                        startActivity(intent)
+                    }
+
+                } else {
+                    println("Request failed with status code: ${response.code}")
+                }
+
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    suspend fun pollFetchResult(fetchUrl: String, eta: Int) {
+        // fetch 상태를 주기적으로 확인
+        val client = OkHttpClient.Builder()
+            .connectTimeout(300, java.util.concurrent.TimeUnit.SECONDS) // 연결 타임아웃
+            .readTimeout(300, java.util.concurrent.TimeUnit.SECONDS)    // 읽기 타임아웃
+            .writeTimeout(300, java.util.concurrent.TimeUnit.SECONDS)   // 쓰기 타임아웃
+            .build()
+        val apiKey = BuildConfig.D_API_KEY
+        val mediaType = "application/json".toMediaTypeOrNull()
+        val body = RequestBody.create(mediaType,
+            """
+            {
+                "key" : "$apiKey"
+            }""".trimIndent())
+
+        val request = Request.Builder()
+            .url(fetchUrl)
+            .post(body)
+            .addHeader("Content-Type", "application/json")
+            .build()
+
+        // 최소 대기 시간 1초로 설정
+        val pollingInterval = 1000L // 1초
+
+        var continuePolling = true
+        while (continuePolling) {
+            try {
+                // 상태를 폴링
+                val response = client.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                if (response.isSuccessful) {
+                    val jsonResponse = JSONObject(responseBody)
+                    val status = jsonResponse.getString("status")
+
+                    // "completed" 상태일 때 결과 처리
+                    if (status == "completed") {
+                        val resultUrl = jsonResponse.getJSONArray("future_links").getString(0)
+                        Log.d("Fetch Completed", "Fetched Result URL: $resultUrl")
+                        // 여기서 결과 URL을 사용하여 추가 작업을 진행할 수 있습니다
+                        continuePolling = false
+                    } else {
+                        Log.d("Status", "waiting...")
+                        //Log.d("Status", "Status: $status, Waiting... ETA: ${jsonResponse.opInt("eta", 10)} seconds.")
+                        delay(pollingInterval)  // 주기적으로 상태 확인 (1초 간격)
+                    }
+                } else {
+                    Log.e("Polling Error", "Failed to fetch status: ${response.code}")
+                    continuePolling = false
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                continuePolling = false
+            }
+        }
+    }
+
+
+    fun saveBase64ImageToFile(base64String: String, context: Context, filename: String): String? {
+        return try {
+            // Base64 문자열을 디코딩하여 바이트 배열로 변환
+            val decodedString: ByteArray = Base64.decode(base64String, Base64.NO_WRAP)
+
+            // 바이트 배열을 Bitmap으로 변환
+            val bitmap: Bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+
+            // 파일 경로 정의 (앱의 내부 저장소)
+            val file = File(context.filesDir, filename)
+
+            // 파일에 Bitmap을 PNG 형식으로 저장
+            val fileOutputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+
+            // 저장된 파일의 경로 반환
+            file.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null // 오류 발생 시 null 반환
+        }
+    }
+    fun decodeBase64Image(base64String: String): Bitmap? {
+        return try {
+            val decodedString: ByteArray = Base64.decode(base64String, Base64.NO_WRAP)
+            BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

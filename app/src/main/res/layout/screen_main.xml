@@ -16,8 +16,57 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="#F0FF00" >
+
     </FrameLayout>
 
+    <View
+        android:id="@+id/backgroundDark"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000"
+        android:clickable="true"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/backCircle"
+        android:layout_width="236dp"
+        android:layout_height="118dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/bottom_hallf_circle"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/recentBook_1"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="120dp"
+        android:background="#FFDDFF"
+        android:clickable="true"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/recentBook_2"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="180dp"
+        android:background="#FFDDFF"
+        android:clickable="true"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/recentBook_3"
+        android:layout_width="80dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="100dp"
+        android:layout_marginLeft="120dp"
+        android:background="#FFDDFF"
+        android:clickable="true"
+        android:visibility="gone"/>
     <!-- Include 하단바 -->
     <include
         layout="@layout/bottom_bar"
@@ -37,6 +86,13 @@
         android:background="@drawable/background_bottom_circle">
 
         <ImageView
+            android:id="@+id/outline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_circle_outline"
+            android:visibility="gone"/>
+
+        <ImageView
             android:id='@+id/bottom_circle'
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,4 +106,5 @@
             android:layout_gravity="center"
             android:src="@drawable/icon_book"/>
     </FrameLayout>
+
 </FrameLayout>

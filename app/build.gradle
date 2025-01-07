@@ -52,12 +52,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "OPENAI_API_KEY", "\"${OPENAI_API_KEY}\""
             buildConfigField "String", "ELEVEN_API_KEY", "\"${ELEVEN_API_KEY}\""
+            buildConfigField "String", "D_API_KEY", "\"${D_API_KEY}\""
         }
 
 
         debug {
             buildConfigField "String", "OPENAI_API_KEY", "\"${project.properties['OPENAI_API_KEY']}\""
             buildConfigField "String", "ELEVEN_API_KEY", "\"${ELEVEN_API_KEY}\""
+            buildConfigField "String", "D_API_KEY", "\"${D_API_KEY}\""
         }
     }
     kotlinOptions {
@@ -122,4 +124,7 @@ dependencies {
     implementation "com.google.android.exoplayer:exoplayer:2.19.1"
     implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
 
+    implementation 'org.json:json:20210307'
+    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.15.0'
+    implementation 'com.google.ar.sceneform:core:1.15.0'
 }
