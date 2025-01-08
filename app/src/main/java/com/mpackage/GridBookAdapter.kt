@@ -20,8 +20,12 @@ class GridBookAdapter(
 ) : RecyclerView.Adapter<GridBookAdapter.GridBookViewHolder>() {
 
     // 정렬된 리스트를 별도로 생성
-    private val sortedBooks = books.sortedBy { it.ranking }
+    //private val sortedBooks = books.sortedBy { it.ranking }
 
+    // 정렬된 리스트를 별도로 생성
+    private val sortedBooks = books.map { book ->
+        book.copy(ranking = (1..50).random())
+    }.sortedBy { it.ranking }
 
 
 
@@ -44,7 +48,7 @@ class GridBookAdapter(
         holder.titleText.text = book.title
 
         // Set ranking
-        holder.likeCount.text = "Rank: ${book.ranking}"
+        holder.likeCount.text = "${book.ranking}"
 
         // Decode and set image
         val decodedImage = decodeBase64Image(book.title_img)

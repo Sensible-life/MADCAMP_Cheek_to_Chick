@@ -83,16 +83,13 @@ class CreateFragment4 : Fragment() {
         showLoadingFragment(3)
 
         // 프롬프트 정의
-        val inputPrompt = previousText + "라는 교훈을 가진 어린이들을 위한 8페이지짜리 동화책을 만들 거야. " +
+        val inputPrompt = previousText + "라는 교훈을 가진 어린이들을 위한 3페이지짜리 동화책을 만들 거야. " +
                 "주인공 캐릭터는" + currentText + "이고, 대상 독자는" + endText +"의 나이를 가지고 있어." +
-                "8페이지짜리 동화책을 만들어 줘. 각 페이지는 3줄 정도면 괜찮을 것 같아." +
+                "3페이지짜리 동화책을 만들어 줘. 각 페이지는 3줄 정도면 괜찮을 것 같아." +
                 "이야기의 기승전결이 명확했으면 좋겠고, 내용 흐름의 연결이 자연스러우며, 중복되는 내용의 페이지가 최대한" +
                 "적었으면 좋겠어. 문장 끝에는 개행문자를 넣어줘. 전체 문장 그 어디에도 쌍따옴표나, 따옴표가 들어가지" +
                 "않도록 해 줘." +
-                "답변의 형태는, 서론 생략하고 제목: \n 1. (내용) \n 2.(내용) \n 3. (내용) \n" +
-                " 4.(내용) \n 5. (내용) \n" +
-                " 6.(내용) \n 7. (내용) \n" +
-                " 8.(내용) "
+                "답변의 형태는, 서론 생략하고 제목: \n 1. (내용) \n 2.(내용) \n 3. (내용)"
         var imagePrompt = ""
 
         // 비동기 작업으로 API 호출
@@ -105,7 +102,7 @@ class CreateFragment4 : Fragment() {
                         val eng = repository.getChatResponse(engPrompt)
                         CoroutineScope(Dispatchers.Main).launch {
                             try {
-                                val imageUrls = generateImagesWithDelay(eng, 9, 3000L) // 12초 딜레이 적용
+                                val imageUrls = generateImagesWithDelay(eng, 4, 3000L) // 12초 딜레이 적용
                                 imageUrls.forEach { url ->
                                     println("Generated Image URL: $url")
                                 }
