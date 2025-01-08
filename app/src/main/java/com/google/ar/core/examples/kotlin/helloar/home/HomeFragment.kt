@@ -75,6 +75,7 @@ class HomeFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         setupSearchFunctionality()
 
+        val icon = view.findViewById<ImageView>(R.id.logo)
         val screenHome = view.findViewById<FrameLayout>(R.id.screenHome)
         val parentView = screenHome.parent as? ViewGroup
         val bookshelf: FrameLayout = view.findViewById(R.id.bookshelf)
@@ -140,6 +141,12 @@ class HomeFragment : Fragment() {
             if (inBounds && down && !isAnimating) {
                 isAnimating = true // 애니메이션 시작 전에 플래그 설정
 
+                // Adjust marginBottom of searchBar
+                icon.animate()
+                    .translationYBy(-650f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+
                 // 키보드가 올라왔을 때의 동작
                 bookshelf.animate()
                     .x(((bookshelf.parent as View).width - 30).toFloat())
@@ -170,7 +177,10 @@ class HomeFragment : Fragment() {
             // 키보드가 내려갔고, 애니메이션 중이 아니며, started가 true일 때
             else if (up && !isAnimating) {
                 isAnimating = true // 애니메이션 시작 전에 플래그 설정
-
+                icon.animate()
+                    .translationYBy(650f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
                 // 키보드가 내려갔을 때의 동작
                 bookshelf.animate()
                     .x(0f)
@@ -357,6 +367,10 @@ class HomeFragment : Fragment() {
                         if (finalX < initialX) {
                             // 왼쪽으로 슬라이드
                             Log.d("DEBUG", "Moving by bookshelf drag")
+                            icon.animate()
+                                .translationYBy(650f) // marginTop을 1000에서 300으로 애니메이션
+                                .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                                .start()
                             v.animate()
                                 .x(minX)
                                 .setDuration(300)
@@ -383,6 +397,10 @@ class HomeFragment : Fragment() {
                                 .start()
 
                             recyclerView.visibility = View.VISIBLE
+                            icon.animate()
+                                .translationYBy(-650f) // marginTop을 1000에서 300으로 애니메이션
+                                .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                                .start()
 
                             recyclerView.animate()
                                 .translationYBy(-1600f)

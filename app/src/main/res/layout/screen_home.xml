@@ -7,6 +7,15 @@
     android:orientation="vertical"
     android:background="@color/brightYellow">
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/start_icon"
+        android:layout_gravity="center"
+        android:layout_marginBottom="220dp"
+        android:visibility="visible"/>
+
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bookRecyclerView"

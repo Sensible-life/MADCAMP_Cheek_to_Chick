@@ -80,7 +80,7 @@ class CreateFragment4 : Fragment() {
 
 
         // 로딩 화면 표시
-        showLoadingFragment()
+        showLoadingFragment(3)
 
         // 프롬프트 정의
         val inputPrompt = previousText + "라는 교훈을 가진 어린이들을 위한 8페이지짜리 동화책을 만들 거야. " +
@@ -222,10 +222,10 @@ class CreateFragment4 : Fragment() {
 
 
 
-    private fun showLoadingFragment() {
-        // 로딩 화면 표시
+    private fun showLoadingFragment(pageNumber: Int) {
+        val loadingFragment = LoadingFragment.newInstance(pageNumber)
         parentFragmentManager.beginTransaction()
-            .add(R.id.bigger_content_frame, LoadingFragment(), "LoadingFragment")
+            .add(R.id.bigger_content_frame, loadingFragment, "LoadingFragment")
             .commit()
     }
 

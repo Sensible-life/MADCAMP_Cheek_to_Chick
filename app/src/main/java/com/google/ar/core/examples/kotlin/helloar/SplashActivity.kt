@@ -67,7 +67,7 @@ class SplashActivity : AppCompatActivity() {
             .apply(
                 RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE) // 디스크 캐싱 사용
-                    .override(800, 800) // 원본 크기로 디코딩
+                    .override(1800, 1800) // 원본 크기로 디코딩
                     .skipMemoryCache(true) // 메모리 캐시 비활성화
             )
             .into(splashGif)
@@ -87,7 +87,7 @@ class SplashActivity : AppCompatActivity() {
                     startActivity(Intent(this, LoginActivity::class.java))
                     overridePendingTransition(0, 0)
                     finish()
-                }, 3500) // 3초 대기
+                }, 4000) // 3초 대기
             } else if (token != null) {
                 Log.i(TAG, "카카오 로그인 성공 ${token.accessToken}")
                 Toast.makeText(this, "카카오 로그인 성공", Toast.LENGTH_SHORT).show()
@@ -96,7 +96,7 @@ class SplashActivity : AppCompatActivity() {
                     startActivity(Intent(this, MainActivity::class.java))
                     overridePendingTransition(0, 0)
                     finish()
-                }, 3500) // 3초 대기
+                }, 4000) // 3초 대기
             }
         }
         // 카카오톡이 설치되어 있는 경우

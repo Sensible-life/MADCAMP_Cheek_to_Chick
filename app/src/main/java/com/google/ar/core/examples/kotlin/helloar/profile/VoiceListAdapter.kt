@@ -40,7 +40,7 @@ class VoiceListAdapter(private val context: Context,
             onButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.yellow))
         }
         else {
-            onButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.lightBlack))
+            onButton.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.brown))
         }
 
         onButton.setOnClickListener {
