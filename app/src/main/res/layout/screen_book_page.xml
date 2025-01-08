@@ -7,42 +7,72 @@
     android:background="@color/brightYellow">
 
 
-    <ImageView
-        android:id="@+id/page_image"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
+    <FrameLayout
+        android:id ="@+id/reading_book"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.5"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        android:layout_marginBottom="300dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/page_img_background"
+            android:layout_width="255dp"
+            android:layout_height="310dp"
+            android:src="@drawable/grid_shadow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.501"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/page_image"
+            android:layout_width="230dp"
+            android:layout_height="285dp"
+            android:layout_marginLeft="4dp"
+            android:padding="16dp"
+            android:src="@drawable/icon_leave"
+            app:layout_constraintBottom_toBottomOf="@id/cover_image_background"
+            app:layout_constraintEnd_toEndOf="@id/cover_image_background"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/cover_image_background"
+            app:layout_constraintTop_toTopOf="@id/cover_image_background"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="ContentDescription" />
+
+
+    </FrameLayout>
+
+
+
 
     <TextView
         android:id="@+id/page_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:layout_marginHorizontal="32dp"
-        android:textSize="23sp"
-        android:fontFamily="@font/g_title_bold"
-        android:textColor="@color/lightBlack"
-        android:lineSpacingExtra="4dp"
-        app:layout_constraintTop_toBottomOf="@id/page_image"
+        app:layout_constraintTop_toBottomOf="@id/reading_book"
+        android:textSize="25sp"
+        android:paddingHorizontal="30dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="250dp"/>
 
     <ImageView
         android:id="@+id/play_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="center|bottom"
         android:layout_marginStart="276dp"
-        android:layout_marginBottom="92dp"
+        android:layout_marginBottom="50dp"
         android:src="@drawable/sound"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

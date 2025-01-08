@@ -2,23 +2,63 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/brightYellow">
 
-    <ImageView
-        android:id="@+id/cover_image"
-        android:layout_width="256dp"
-        android:layout_height="256dp"
-        android:layout_gravity="center"
-        android:background="@color/brightYellow"
-        android:gravity="center"
-        android:padding="16dp"
-        android:src="@drawable/icon_leave" />
+    <FrameLayout
+        android:id="@+id/bookpg_img"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="300dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/cover_image_background"
+            android:layout_width="255dp"
+            android:layout_height="310dp"
+            android:src="@drawable/grid_shadow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.501"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/cover_image"
+            android:layout_width="230dp"
+            android:layout_height="285dp"
+            android:layout_marginLeft="4dp"
+            android:padding="16dp"
+            android:src="@drawable/icon_leave"
+            app:layout_constraintBottom_toBottomOf="@id/cover_image_background"
+            app:layout_constraintEnd_toEndOf="@id/cover_image_background"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/cover_image_background"
+            app:layout_constraintTop_toTopOf="@id/cover_image_background"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="ContentDescription" />
+
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/selected_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/bookpg_img"
+        android:textSize="25sp"
+        android:paddingHorizontal="30dp"
+        android:layout_marginTop="40dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="250dp"/>
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

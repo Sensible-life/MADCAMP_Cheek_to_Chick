@@ -41,7 +41,7 @@ class RankingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.gridRecyclerview)
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 5) // 2 columns
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 4) // 2 columns
         recyclerView.setHasFixedSize(true)
 
         // Fetch and display books
