@@ -48,14 +48,6 @@ object RetrofitClient {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-//            .client(
-//                OkHttpClient.Builder().addInterceptor{ chain ->
-//                    val request = chain.request().newBuilder()
-//                        .addHeader("Content-Type", "application/json")
-//                        .build()
-//                    chain.proceed(request)
-//                }.build()
-//            )
             .build()
     }
 
@@ -79,6 +71,11 @@ object RetrofitClient {
     //Returning Info of Liked Books
     val booksApi: BooksApi by lazy {
         retrofit.create(BooksApi::class.java)
+    }
+
+
+    val listedBooksApi: ListedBooksApi by lazy {
+        retrofit.create(ListedBooksApi::class.java)
     }
 
 

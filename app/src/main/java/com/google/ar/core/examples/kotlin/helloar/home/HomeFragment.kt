@@ -1,6 +1,7 @@
 package com.google.ar.core.examples.kotlin.helloar.home
 
-import BooksApi
+
+import ListedBookAdapter
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.graphics.Color
@@ -11,15 +12,21 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.ar.core.examples.kotlin.helloar.BooksDatabaseHelper
 import com.google.ar.core.examples.kotlin.helloar.R
 import com.mpackage.network.LikedBooks
+import com.mpackage.network.ListedBooks
 import com.mpackage.network.RetrofitClient
-import com.mpackage.network.RetrofitClient.retrofit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,13 +41,34 @@ class HomeFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+
+
+        // 데이터 불러오기
+        fetchAllBooksFromServer()
         val view = inflater.inflate(R.layout.screen_home, container, false)
+
+        // Find RecyclerView in the layout
+        val recyclerView: RecyclerView = view.findViewById(R.id.bookRecyclerView)
+
+        // Initialize the RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.setHasFixedSize(true)
+
+        // Search Bar Move
+        val searchBar = view.findViewById<LinearLayout>(R.id.search_bar)
+
+        // 검색 기능 초기화
+        setupSearchFunctionality()
+
+
+
         val screenHome = view.findViewById<FrameLayout>(R.id.screenHome)
         val parentView = screenHome.parent as? ViewGroup
         val dragArea = parentView?.findViewById<FrameLayout>(R.id.dragArea)
         fetchBooksFromServer()
-        val books = loadBooksFromDatabase()
-        Log.d("김문원퇴근여부", books.toString())
+        fetchAllBooksFromServer()
+
+
         val bookshelf: FrameLayout = view.findViewById(R.id.bookshelf)
         val book1: ImageView = view.findViewById(R.id.book_1)
         val book2: ImageView = view.findViewById(R.id.book_2)
@@ -147,6 +175,7 @@ class HomeFragment : Fragment() {
                             .x(minX)
                             .setDuration(300)
                             .start()
+                        recyclerView.visibility = View.INVISIBLE // RecyclerView 숨기기
                         Log.d("DEBUG", "Bookshelf ACTION_UP - Slide Left")
                     } else if (finalX > initialX) {
                         // 오른쪽으로 슬라이드
@@ -154,6 +183,11 @@ class HomeFragment : Fragment() {
                             .x(maxX)
                             .setDuration(300)
                             .start()
+                        recyclerView.visibility = View.VISIBLE // RecyclerView 보이기
+                        // Adjust marginBottom of searchBar
+                        val layoutParams = searchBar.layoutParams as ViewGroup.MarginLayoutParams
+                        layoutParams.bottomMargin = 300
+                        searchBar.layoutParams = layoutParams
                         Log.d("DEBUG", "Bookshelf ACTION_UP - Slide Right")
                     }
                 }
@@ -164,16 +198,16 @@ class HomeFragment : Fragment() {
 
         return view
     }
-
-    private fun saveBooksToDatabase(books: List<LikedBooks>) {
-        val dbHelper = BooksDatabaseHelper(requireContext())
-        dbHelper.insertBooks(books)
-    }
-
-    private fun loadBooksFromDatabase(): List<LikedBooks> {
-        val dbHelper = BooksDatabaseHelper(requireContext())
-        return dbHelper.getAllBooks()
-    }
+// ERASE IT //
+//    private fun saveBooksToDatabase(books: List<LikedBooks>) {
+//        val dbHelper = BooksDatabaseHelper(requireContext())
+//        dbHelper.insertBooks(books)
+//    }
+//
+//    private fun loadBooksFromDatabase(): List<LikedBooks> {
+//        val dbHelper = BooksDatabaseHelper(requireContext())
+//        return dbHelper.getAllBooks()
+//    }
 
     private fun fetchBooksFromServer() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -183,7 +217,7 @@ class HomeFragment : Fragment() {
                 if (response.isSuccessful) {
                     // 서버 응답 데이터(body)를 LikedBooks 리스트로 변환
                     val likedBooks: List<LikedBooks> = response.body() ?: emptyList()
-                    saveBooksToDatabase(likedBooks)
+
                     Log.d("김문원", "saved books to database")
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), "Books saved successfully", Toast.LENGTH_SHORT).show()
@@ -200,6 +234,112 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
+
+    private fun fetchAllBooksFromServer() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitClient.listedBooksApi.getAllBooks()
+                if (response.isSuccessful) {
+                    val books: List<ListedBooks> = response.body() ?: emptyList()
+                    Log.d("fetchAllBooksFromServer", "Fetched ${books.size} books from server")
+
+                    // Generate random rankings and sort by ranking (ascending)
+                    books.forEach { it.ranking = (1..100).random() }
+                    val sortedBooks = books.sortedBy { it.ranking }
+
+                    withContext(Dispatchers.Main) {
+                        //RecyclerView 초기화
+                        updateRecyclerView(booksFromServer)
+                        // UI 업데이트 또는 데이터 저장 로직 추가
+                        Toast.makeText(requireContext(), "Fetched ${books.size} books", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e(
+                        "fetchAllBooksFromServer",
+                        "Failed to fetch books: ${response.code()} - ${response.message()}"
+                    )
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to fetch books", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("fetchAllBooksFromServer", "Error fetching books: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private var booksFromServer: List<ListedBooks> = emptyList()
+
+    private fun filterBooksByTitle(query: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val filteredBooks = booksFromServer.filter { it.title.contains(query, ignoreCase = true) } // 검색 쿼리에 따라 필터링
+
+            withContext(Dispatchers.Main) {
+                if (filteredBooks.isNotEmpty()) {
+                    updateRecyclerView(filteredBooks)
+                    Toast.makeText(requireContext(), "Found ${filteredBooks.size} books", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "No books found for \"$query\"", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun updateRecyclerView(filteredBooks: List<ListedBooks>) {
+        val recyclerView = requireView().findViewById<RecyclerView>(R.id.itemlistbook)
+        val adapter = ListedBookAdapter(filteredBooks) { book ->
+            updateBookLikeStatus(book)
+        }
+        recyclerView.adapter = adapter
+    }
+
+    fun updateBookLikeStatus(book: ListedBooks) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+
+                // 서버에 업데이트 요청 (title과 likes 전달)
+                val response = RetrofitClient.listedBooksApi.updateBookStatus(
+                    title = book.title,
+                    isLiked = book.likes
+                )
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(requireContext(), "Book status updated", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to update status", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+
+
+    private fun setupSearchFunctionality() {
+        val searchEditText = requireView().findViewById<EditText>(R.id.search_edit_text)
+
+        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val query = searchEditText.text.toString().trim()
+                filterBooksByTitle(query)
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+
+
 
 
 }
