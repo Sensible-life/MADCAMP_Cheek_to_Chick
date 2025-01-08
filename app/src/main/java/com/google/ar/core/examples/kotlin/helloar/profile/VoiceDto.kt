@@ -5,5 +5,5 @@ data class VoiceDto(
     val name: String,
     val date: String,
     val id: String,
-    val selected: Boolean
+    var selected: Boolean
 )

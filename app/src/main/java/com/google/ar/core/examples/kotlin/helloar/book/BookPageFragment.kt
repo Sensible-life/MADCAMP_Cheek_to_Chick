@@ -18,6 +18,8 @@ import com.bumptech.glide.Glide
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.result.Result
 import com.google.ar.core.examples.kotlin.helloar.R
+import com.google.ar.core.examples.kotlin.helloar.profile.SelectedVoiceData
+import com.google.ar.core.examples.kotlin.helloar.profile.VoiceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,7 +93,8 @@ class BookPageFragment : Fragment() {
 
     // TTS 요청과 음성 파일 재생
     fun sendTTSRequestWithFuel(content: String) {
-        val elevenLabsUrl = "https://api.elevenlabs.io/v1/text-to-speech/gtH3Ett0fWXfaYH2VOVy/stream?output_format=mp3_22050_32"
+        val id = SelectedVoiceData.getVoiceDataList()[0].id
+        val elevenLabsUrl = "https://api.elevenlabs.io/v1/text-to-speech/$id/stream?output_format=mp3_22050_32"
         val apiKey = BuildConfig.ELEVEN_API_KEY
         val jsonData = """
         {
