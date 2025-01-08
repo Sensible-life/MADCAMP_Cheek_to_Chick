@@ -38,10 +38,8 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        // 키 해시 얻기
-        //val keyHash = Utility.getKeyHash(this)
-        //Log.d("KeyHash", "키 해시: $keyHash")
-
+        // logout 함수
+        logoutUser(this)
 
 
         val splashScreen = installSplashScreen()
@@ -143,6 +141,27 @@ class LoginActivity : AppCompatActivity() {
         }
 
     }
+
+    fun logoutUser(context: Context) {
+        UserApiClient.instance.logout { error ->
+            if (error != null) {
+                Log.e("Logout", "카카오 로그아웃 실패", error)
+                Toast.makeText(context, "로그아웃 실패: ${error.localizedMessage}", Toast.LENGTH_SHORT).show()
+            } else {
+                Log.i("Logout", "카카오 로그아웃 성공")
+                Toast.makeText(context, "로그아웃 성공", Toast.LENGTH_SHORT).show()
+
+                // SharedPreferences 초기화
+                clearProfileData()
+
+                // 로그인 화면으로 이동
+                val intent = Intent(context, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            }
+        }
+    }
+
     private fun saveUserProfileToSharedPreferences(userProfile: UserProfile) {
 
 
@@ -160,7 +179,8 @@ class LoginActivity : AppCompatActivity() {
         Log.d(TAG, "SharedPreferences saved profileImage: ${userProfile.profileImage}")
     }
 
-    private fun clearLoginData() {
+
+    private fun clearProfileData() {
         val sharedPreferences = getSharedPreferences("ProfileSharedPreferences", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
 

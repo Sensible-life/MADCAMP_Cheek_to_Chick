@@ -144,6 +144,54 @@ class HomeFragment : Fragment() {
             }
         }
 
+
+        // 드래그 및 드롭 이벤트 처리
+        dragArea?.setOnDragListener { view, event ->
+            when (event.action) {
+                DragEvent.ACTION_DRAG_STARTED -> {
+                    // 드래그 시작 시
+                    view.setBackgroundColor(Color.LTGRAY)
+                    true
+                }
+                DragEvent.ACTION_DRAG_ENTERED -> {
+                    // 드래그 영역 안으로 들어왔을 때
+                    view.setBackgroundColor(Color.YELLOW)
+                    true
+                }
+                DragEvent.ACTION_DRAG_LOCATION -> {
+                    // 드래그 중일 때 (위치 업데이트)
+                    true
+                }
+                DragEvent.ACTION_DRAG_EXITED -> {
+                    // 드래그 영역을 벗어났을 때
+                    view.setBackgroundColor(Color.LTGRAY)
+                    true
+                }
+                DragEvent.ACTION_DROP -> {
+                    // 드롭 시
+                    val droppedView = event.localState as View
+                    val x = event.x
+                    val y = event.y
+
+                    // 드롭된 뷰 위치 업데이트
+                    val layoutParams = FrameLayout.LayoutParams(droppedView.width, droppedView.height)
+                    layoutParams.leftMargin = x.toInt() - droppedView.width / 2
+                    layoutParams.topMargin = y.toInt() - droppedView.height / 2
+                    droppedView.layoutParams = layoutParams
+
+                    // 뷰 색상 복원
+                    view.setBackgroundColor(Color.LTGRAY)
+                    true
+                }
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    // 드래그가 끝났을 때
+                    view.setBackgroundColor(Color.TRANSPARENT)
+                    true
+                }
+                else -> false
+            }
+        }
+
         // 초기 위치: 화면 오른쪽 바깥
         bookshelf.translationX = 1000f
 
