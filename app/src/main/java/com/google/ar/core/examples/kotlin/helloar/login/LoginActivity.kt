@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // logout 함수
-        logoutUser(this)
+        // logoutUser(this)
 
 
         val splashScreen = installSplashScreen()

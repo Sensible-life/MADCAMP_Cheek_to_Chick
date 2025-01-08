@@ -4,6 +4,8 @@ import BooksApi
 import ListedBookAdapter
 import android.annotation.SuppressLint
 import android.content.ClipData
+import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.LinearLayout
@@ -19,11 +21,13 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -71,19 +75,137 @@ class HomeFragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         setupSearchFunctionality()
 
+        val screenHome = view.findViewById<FrameLayout>(R.id.screenHome)
+        val parentView = screenHome.parent as? ViewGroup
+        val bookshelf: FrameLayout = view.findViewById(R.id.bookshelf)
+        val searchEditText = requireView().findViewById<EditText>(R.id.search_edit_text)
+        val searchBar = view.findViewById<LinearLayout>(R.id.search_bar)
+        val dragArea = view.findViewById<FrameLayout>(R.id.dragArea)
+        /*searchEditText.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                bookshelf.animate()
+                    .x(((bookshelf.parent as View).width - 30).toFloat())
+                    .setDuration(300)
+                    .start()
+                recyclerView.visibility = View.VISIBLE // RecyclerView 보이기
+
+                recyclerView.animate()
+                    .translationYBy(-1600f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+                // Adjust marginBottom of searchBar
+                searchBar.animate()
+                    .translationYBy(-650f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+            }
+            else {
+                bookshelf.animate()
+                    .x(0f)
+                    .setDuration(300)
+                    .start()
+
+                searchBar.animate()
+                    .translationYBy(650f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+
+                recyclerView.animate()
+                    .translationYBy(1600f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+
+                recyclerView.visibility = View.GONE // RecyclerView 숨기기
+            }
+        }*/
 
         // 데이터 불러오기
+        val rootView = view
+
+        var started = false
+        var up = false
+        var down = true
+
+        var isAnimating = false // 애니메이션 중인지 여부를 판단하는 변수
+
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val inBounds = imm.isAcceptingText // 키보드가 올라왔는지 내려갔는지 확인
+
+            Log.d("DEBUG", "moving by rootview")
+            if (!started) {
+                recyclerView.postDelayed({started = true}, 300)
+            }
+            // 키보드가 올라왔고, 애니메이션 중이 아니며, down이 true일 때,
+            if (inBounds && down && !isAnimating) {
+                isAnimating = true // 애니메이션 시작 전에 플래그 설정
+
+                // 키보드가 올라왔을 때의 동작
+                bookshelf.animate()
+                    .x(((bookshelf.parent as View).width - 30).toFloat())
+                    .setDuration(300)
+                    .start()
+                recyclerView.visibility = View.VISIBLE // RecyclerView 보이기
+
+                recyclerView.animate()
+                    .translationYBy(-1600f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+
+                // Adjust marginBottom of searchBar
+                searchBar.animate()
+                    .translationYBy(-650f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+
+
+                up = true
+                down = false
+
+                // 애니메이션이 끝났을 때 플래그 초기화
+                recyclerView.postDelayed({
+                    isAnimating = false
+                }, 300) // 애니메이션 시간 동안 대기 후 플래그 초기화
+            }
+            // 키보드가 내려갔고, 애니메이션 중이 아니며, started가 true일 때
+            else if (up && !isAnimating) {
+                isAnimating = true // 애니메이션 시작 전에 플래그 설정
+
+                // 키보드가 내려갔을 때의 동작
+                bookshelf.animate()
+                    .x(0f)
+                    .setDuration(300)
+                    .start()
+
+                searchBar.animate()
+                    .translationYBy(650f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+
+                recyclerView.animate()
+                    .translationYBy(1600f) // marginTop을 1000에서 300으로 애니메이션
+                    .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                    .start()
+
+                recyclerView.visibility = View.GONE // RecyclerView 숨기기
+
+                down = true
+                up = false
+                // 애니메이션이 끝났을 때 플래그 초기화
+                recyclerView.postDelayed({
+                    isAnimating = false
+                }, 300) // 애니메이션 시간 동안 대기 후 플래그 초기화
+            }
+        }
+
 
 
         // Search Bar Move
-        val searchBar = view.findViewById<LinearLayout>(R.id.search_bar)
+
 
         // 검색 기능 초기화
 
 
-        val screenHome = view.findViewById<FrameLayout>(R.id.screenHome)
-        val parentView = screenHome.parent as? ViewGroup
-        val bookshelf: FrameLayout = view.findViewById(R.id.bookshelf)
         val book1: ImageView = view.findViewById(R.id.book_1)
         val book2: ImageView = view.findViewById(R.id.book_2)
         val book3: ImageView = view.findViewById(R.id.book_3)
@@ -218,56 +340,67 @@ class HomeFragment : Fragment() {
                 MotionEvent.ACTION_MOVE -> {
                     val newX = event.rawX - dX
                     val clampedX = newX.coerceIn(minX, maxX)
-                    v.animate()
-                        .x(clampedX)
-                        .setDuration(0)
-                        .start()
-                    Log.d("DEBUG", "Bookshelf ACTION_MOVE at $clampedX")
+
+                    // 이동 거리(dX)가 일정 범위 이상일 때만 애니메이션 처리
+                    if (Math.abs(event.rawX - initialX) > 10) {
+                        v.animate()
+                            .x(clampedX)
+                            .setDuration(0)
+                            .start()
+                        Log.d("DEBUG", "Bookshelf ACTION_MOVE at $clampedX")
+                    }
                 }
                 MotionEvent.ACTION_UP -> {
                     val finalX = event.rawX
-                    if (finalX < initialX) {
-                        // 왼쪽으로 슬라이드
-                        v.animate()
-                            .x(minX)
-                            .setDuration(300)
-                            .start()
+                    // 이동 거리가 일정 범위 이상일 때만 슬라이드 애니메이션 실행
+                    if (Math.abs(finalX - initialX) > 10) {
+                        if (finalX < initialX) {
+                            // 왼쪽으로 슬라이드
+                            Log.d("DEBUG", "Moving by bookshelf drag")
+                            v.animate()
+                                .x(minX)
+                                .setDuration(300)
+                                .start()
 
-                        searchBar.animate()
-                            .translationYBy(650f) // marginTop을 1000에서 300으로 애니메이션
-                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
-                            .start()
+                            searchBar.animate()
+                                .translationYBy(650f)
+                                .setDuration(300)
+                                .start()
 
-                        recyclerView.animate()
-                            .translationYBy(1600f) // marginTop을 1000에서 300으로 애니메이션
-                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
-                            .start()
+                            recyclerView.animate()
+                                .translationYBy(1600f)
+                                .setDuration(300)
+                                .start()
 
-                        recyclerView.visibility = View.GONE // RecyclerView 숨기기
-                        Log.d("DEBUG", "Bookshelf ACTION_UP - Slide Left")
-                    } else if (finalX > initialX) {
-                        // 오른쪽으로 슬라이드
-                        v.animate()
-                            .x(maxX)
-                            .setDuration(300)
-                            .start()
-                        recyclerView.visibility = View.VISIBLE // RecyclerView 보이기
+                            recyclerView.visibility = View.GONE
+                            Log.d("DEBUG", "Bookshelf ACTION_UP - Slide Left")
+                        } else if (finalX > initialX) {
+                            // 오른쪽으로 슬라이드
+                            Log.d("DEBUG", "Moving by bookshelf drag")
+                            v.animate()
+                                .x(maxX)
+                                .setDuration(300)
+                                .start()
 
-                        recyclerView.animate()
-                            .translationYBy(-1600f) // marginTop을 1000에서 300으로 애니메이션
-                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
-                            .start()
-                        // Adjust marginBottom of searchBar
-                        searchBar.animate()
-                            .translationYBy(-650f) // marginTop을 1000에서 300으로 애니메이션
-                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
-                            .start()
-                        Log.d("DEBUG", searchBar.layoutParams.toString())
+                            recyclerView.visibility = View.VISIBLE
+
+                            recyclerView.animate()
+                                .translationYBy(-1600f)
+                                .setDuration(300)
+                                .start()
+
+                            searchBar.animate()
+                                .translationYBy(-650f)
+                                .setDuration(300)
+                                .start()
+                            Log.d("DEBUG", searchBar.layoutParams.toString())
+                        }
                     }
                 }
             }
             true
         }
+
     }
 
 

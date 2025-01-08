@@ -2,6 +2,8 @@ package com.google.ar.core.examples.kotlin.helloar.profile
 
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.database.Cursor
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -31,6 +33,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import android.webkit.MimeTypeMap
+import com.google.ar.core.examples.kotlin.helloar.MainActivity
+import com.google.ar.core.examples.kotlin.helloar.login.LoginActivity
+import com.kakao.sdk.user.UserApiClient
 
 class ProfileFragment : Fragment() {
 
@@ -64,6 +69,8 @@ class ProfileFragment : Fragment() {
         val voiceSetting = view.findViewById<LinearLayout>(R.id.voice_record)
         val languageSetting = view.findViewById<LinearLayout>(R.id.language)
         val backArrow = view.findViewById<ImageView>(R.id.backButton)
+        val logout = view.findViewById<LinearLayout>(R.id.log_out)
+
         backArrow.visibility = View.VISIBLE
 
         backArrow.setOnClickListener {
@@ -92,6 +99,9 @@ class ProfileFragment : Fragment() {
                 .replace(R.id.content_frame, LanguageFragment())
                 .addToBackStack(null)
                 .commit()
+        }
+        logout.setOnClickListener {
+            logoutUser(requireContext())
         }
     }
 
@@ -144,6 +154,25 @@ class ProfileFragment : Fragment() {
         } else {
             Log.e(tag, "loadUserProfile: Profile image URL is null or empty")
             profileImage.setImageResource(R.drawable.default_profile_image)
+        }
+    }
+    fun logoutUser(context: Context) {
+        UserApiClient.instance.unlink { error ->
+            if (error != null) {
+                Log.e("Logout", "카카오 로그아웃 실패", error)
+                Toast.makeText(context, "로그아웃 실패: ${error.localizedMessage}", Toast.LENGTH_SHORT).show()
+            } else {
+                Log.i("Logout", "카카오 로그아웃 성공")
+                Toast.makeText(context, "로그아웃 성공", Toast.LENGTH_SHORT).show()
+
+                // SharedPreferences 초기화
+                // clearProfileData()
+
+                // 로그인 화면으로 이동
+                val intent = Intent(context, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            }
         }
     }
 }
