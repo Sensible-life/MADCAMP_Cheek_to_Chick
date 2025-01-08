@@ -28,7 +28,7 @@ class GridBookAdapter(
     class GridBookViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleImage: ImageView = view.findViewById(R.id.titleImage)
         val titleText: TextView = view.findViewById(R.id.titleText)
-        val likeCount: TextView = view.findViewById(R.id.rankingText)
+        val likeCount: TextView = view.findViewById(R.id.likeCount)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GridBookViewHolder {

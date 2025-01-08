@@ -52,14 +52,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "String", "OPENAI_API_KEY", "\"${OPENAI_API_KEY}\""
             buildConfigField "String", "ELEVEN_API_KEY", "\"${ELEVEN_API_KEY}\""
-            buildConfigField "String", "D_API_KEY", "\"${D_API_KEY}\""
+
         }
 
 
         debug {
             buildConfigField "String", "OPENAI_API_KEY", "\"${project.properties['OPENAI_API_KEY']}\""
             buildConfigField "String", "ELEVEN_API_KEY", "\"${ELEVEN_API_KEY}\""
-            buildConfigField "String", "D_API_KEY", "\"${D_API_KEY}\""
+            
         }
     }
     kotlinOptions {

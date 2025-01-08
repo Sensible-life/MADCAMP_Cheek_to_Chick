@@ -33,6 +33,12 @@ class RankingFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.ranking_fragment, container, false)
 
+
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.gridRecyclerview)
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 5) // 2 columns
@@ -41,7 +47,6 @@ class RankingFragment : Fragment() {
         // Fetch and display books
         fetchBooks()
 
-        return view
     }
 
     private fun fetchBooks() {

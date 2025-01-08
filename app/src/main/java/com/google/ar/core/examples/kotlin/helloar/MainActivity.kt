@@ -218,7 +218,7 @@ class MainActivity : AppCompatActivity() {
                 .addToBackStack(null)
                 .commit()
         }
-        cameraLayout.setOnClickListener {
+        cameraButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
             cameraButton.setImageResource(R.drawable.icon_camera_selected)
             communityButton.setImageResource(R.drawable.icon_community)
