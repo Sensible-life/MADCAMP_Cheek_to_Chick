@@ -54,6 +54,7 @@
         app:cardCornerRadius="10dp"
         android:layout_gravity="center"
         android:background="@color/white"
+        android:layout_marginTop="50dp"
 >
 
         <TextView

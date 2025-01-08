@@ -5,7 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/brown">
+    android:background="@color/brightYellow">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/start_icon"
+        android:layout_gravity="center"
+        android:layout_marginBottom="220dp"
+        android:visibility="visible"/>
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView

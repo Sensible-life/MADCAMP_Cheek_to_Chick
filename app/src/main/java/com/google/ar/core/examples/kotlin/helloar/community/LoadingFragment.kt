@@ -49,6 +49,8 @@ class LoadingFragment : Fragment() {
         val text = view.findViewById<TextView>(R.id.loadingText)
         if (pageNumber == 2)
             text.text = "캐릭터를\n생성하는 중이에요"
+        else if (pageNumber == 3) text.text = "책을\n생성하는 중이에요"
+
         Glide.with(this)
             .asGif()
             .load(R.drawable.loading)
