@@ -497,15 +497,18 @@ class HomeFragment : Fragment() {
             try {
 
                 // 서버에 업데이트 요청 (title과 likes 전달)
+                Log.d("title", book.title)
                 val response = RetrofitClient.listedBooksApi.updateBookStatus(
                     title = book.title,
-                    isLiked = book.likes
+                    like = book.likes
                 )
 
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         Toast.makeText(requireContext(), "Book status updated", Toast.LENGTH_SHORT).show()
+                        Log.d("response", response.toString())
                     } else {
+                        Log.d("response", response.toString())
                         Toast.makeText(requireContext(), "Failed to update status", Toast.LENGTH_SHORT).show()
                     }
                 }

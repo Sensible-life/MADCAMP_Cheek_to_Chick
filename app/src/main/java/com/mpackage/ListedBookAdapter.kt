@@ -67,11 +67,11 @@ class ListedBookAdapter(
         // Like Button
         updateLikeButton(holder.likeButton, book.likes)
 
-//        holder.likeButton.setOnClickListener {
-//            val updatedBook = book.copy(likes = !book.likes) // 새로운 객체 생성
-//            updateLikeButton(holder.likeButton, updatedBook.likes)
-//            onLikeClicked(updatedBook)
-//        }
+        holder.likeButton.setOnClickListener {
+            val updatedBook = book.copy(likes = !book.likes) // 새로운 객체 생성
+            updateLikeButton(holder.likeButton, updatedBook.likes)
+            onLikeClicked(updatedBook)
+        }
 
 
 
