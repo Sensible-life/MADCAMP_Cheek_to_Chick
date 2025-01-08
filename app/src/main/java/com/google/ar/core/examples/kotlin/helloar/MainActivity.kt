@@ -206,7 +206,6 @@ class MainActivity : AppCompatActivity() {
                 .commit()
         }
 
-
         cameraLayout.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
             cameraButton.setImageResource(R.drawable.icon_camera_selected)
