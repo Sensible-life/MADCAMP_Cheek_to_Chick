@@ -8,7 +8,7 @@ import retrofit2.http.Query
 
 interface ListedBooksApi {
     @GET("/api/books/all") // 모든 도서 데이터를 가져오는 API
-    suspend fun getAllBooks(): Response<List<ListedBooks>>
+    suspend fun getAllBooks(): Response<List<LikedBooks>>
 
     @POST("/api/books/updateStatus")
     suspend fun updateBookStatus(

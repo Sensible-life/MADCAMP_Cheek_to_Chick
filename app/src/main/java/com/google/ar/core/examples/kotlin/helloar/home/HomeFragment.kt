@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory
 import android.widget.LinearLayout
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Base64
 import android.util.Log
 import android.view.DragEvent
@@ -21,12 +23,17 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.ar.core.examples.kotlin.helloar.BooksDatabaseHelper
 import com.google.ar.core.examples.kotlin.helloar.LikedBookManager
 import com.google.ar.core.examples.kotlin.helloar.R
+import com.google.ar.core.examples.kotlin.helloar.profile.VoiceData
+import com.google.ar.core.examples.kotlin.helloar.profile.VoiceDto
+import com.google.ar.core.examples.kotlin.helloar.profile.VoiceListAdapter
+import com.google.ar.core.examples.kotlin.helloar.profile.VoiceSettingFragment
 import com.google.gson.Gson
 import com.mpackage.network.LikedBooks
 import com.mpackage.network.ListedBooks
@@ -42,31 +49,36 @@ class HomeFragment : Fragment() {
 
     private var dX: Float = 0f // 뷰와 터치 지점 간의 차이를 저장
     var initialX = 0f // 터치 시작 위치 저장
+    var booksFromServer: List<LikedBooks> = emptyList()
 
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.screen_home, container, false)
+        return view
+    }
 
-
-        // 데이터 불러오기
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // val voiceSetting = view.findViewById<LinearLayout>(R.id.voice_record)
         fetchAllBooksFromServer()
         var booksList: List<LikedBooks> = emptyList()
-        val view = inflater.inflate(R.layout.screen_home, container, false)
-
-        // Find RecyclerView in the layout
         val recyclerView: RecyclerView = view.findViewById(R.id.bookRecyclerView)
 
         // Initialize the RecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         recyclerView.setHasFixedSize(true)
+        setupSearchFunctionality()
+
+
+        // 데이터 불러오기
+
 
         // Search Bar Move
         val searchBar = view.findViewById<LinearLayout>(R.id.search_bar)
 
         // 검색 기능 초기화
-        setupSearchFunctionality()
-
 
 
         val screenHome = view.findViewById<FrameLayout>(R.id.screenHome)
@@ -172,7 +184,18 @@ class HomeFragment : Fragment() {
                             .x(minX)
                             .setDuration(300)
                             .start()
-                        recyclerView.visibility = View.INVISIBLE // RecyclerView 숨기기
+
+                        searchBar.animate()
+                            .translationYBy(650f) // marginTop을 1000에서 300으로 애니메이션
+                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                            .start()
+
+                        recyclerView.animate()
+                            .translationYBy(1600f) // marginTop을 1000에서 300으로 애니메이션
+                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                            .start()
+
+                        recyclerView.visibility = View.GONE // RecyclerView 숨기기
                         Log.d("DEBUG", "Bookshelf ACTION_UP - Slide Left")
                     } else if (finalX > initialX) {
                         // 오른쪽으로 슬라이드
@@ -181,19 +204,22 @@ class HomeFragment : Fragment() {
                             .setDuration(300)
                             .start()
                         recyclerView.visibility = View.VISIBLE // RecyclerView 보이기
+
+                        recyclerView.animate()
+                            .translationYBy(-1600f) // marginTop을 1000에서 300으로 애니메이션
+                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                            .start()
                         // Adjust marginBottom of searchBar
-                        val layoutParams = searchBar.layoutParams as ViewGroup.MarginLayoutParams
-                        layoutParams.bottomMargin = 300
-                        searchBar.layoutParams = layoutParams
-                        Log.d("DEBUG", "Bookshelf ACTION_UP - Slide Right")
+                        searchBar.animate()
+                            .translationYBy(-650f) // marginTop을 1000에서 300으로 애니메이션
+                            .setDuration(300) // 애니메이션 지속 시간 (500ms)
+                            .start()
+                        Log.d("DEBUG", searchBar.layoutParams.toString())
                     }
                 }
             }
             true
         }
-
-
-        return view
     }
 
 
@@ -228,18 +254,19 @@ class HomeFragment : Fragment() {
             try {
                 val response = RetrofitClient.listedBooksApi.getAllBooks()
                 if (response.isSuccessful) {
-                    val books: List<ListedBooks> = response.body() ?: emptyList()
-                    Log.d("fetchAllBooksFromServer", "Fetched ${books.size} books from server")
+                    booksFromServer = response.body() ?: emptyList()
+
+                    Log.d("fetchAllBooksFromServer", "Fetched ${booksFromServer.size} books from server")
 
                     // Generate random rankings and sort by ranking (ascending)
-                    books.forEach { it.ranking = (1..100).random() }
-                    val sortedBooks = books.sortedBy { it.ranking }
+                    booksFromServer.forEach { it.ranking = (1..100).random() }
+                    val sortedBooks = booksFromServer.sortedBy { it.ranking }
 
                     withContext(Dispatchers.Main) {
                         //RecyclerView 초기화
                         updateRecyclerView(booksFromServer)
                         // UI 업데이트 또는 데이터 저장 로직 추가
-                        Toast.makeText(requireContext(), "Fetched ${books.size} books", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Fetched ${booksFromServer.size} books", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     Log.e(
@@ -259,14 +286,14 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private var booksFromServer: List<ListedBooks> = emptyList()
-
     private fun filterBooksByTitle(query: String) {
+        Log.d("filter", query)
         CoroutineScope(Dispatchers.IO).launch {
             val filteredBooks = booksFromServer.filter { it.title.contains(query, ignoreCase = true) } // 검색 쿼리에 따라 필터링
 
             withContext(Dispatchers.Main) {
                 if (filteredBooks.isNotEmpty()) {
+                    Log.d("filteredBooks", filteredBooks.toString())
                     updateRecyclerView(filteredBooks)
                     Toast.makeText(requireContext(), "Found ${filteredBooks.size} books", Toast.LENGTH_SHORT).show()
                 } else {
@@ -276,15 +303,15 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun updateRecyclerView(filteredBooks: List<ListedBooks>) {
-        val recyclerView = requireView().findViewById<RecyclerView>(R.id.itemlistbook)
+    private fun updateRecyclerView(filteredBooks: List<LikedBooks>) {
+        val recyclerView = requireView().findViewById<RecyclerView>(R.id.bookRecyclerView)
         val adapter = ListedBookAdapter(filteredBooks) { book ->
             updateBookLikeStatus(book)
         }
         recyclerView.adapter = adapter
     }
 
-    fun updateBookLikeStatus(book: ListedBooks) {
+    fun updateBookLikeStatus(book: LikedBooks) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
 
@@ -313,16 +340,25 @@ class HomeFragment : Fragment() {
 
     private fun setupSearchFunctionality() {
         val searchEditText = requireView().findViewById<EditText>(R.id.search_edit_text)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-        searchEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val query = searchEditText.text.toString().trim()
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString()
                 filterBooksByTitle(query)
-                true
-            } else {
-                false
             }
-        }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+//        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+//            if (actionId == EditorInfo.IME_ACTION_DONE) {
+//                val query = searchEditText.text.toString().trim()
+//                filterBooksByTitle(query)
+//                true
+//            } else {
+//                false
+//            }
+//        }
     }
 
 

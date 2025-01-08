@@ -24,6 +24,8 @@ import retrofit2.Response
 import java.io.File
 import android.webkit.MimeTypeMap
 import androidx.fragment.app.DialogFragment
+import org.json.JSONException
+import org.json.JSONObject
 
 class VoiceSettingFragment : DialogFragment() {
 
@@ -116,9 +118,26 @@ class VoiceSettingFragment : DialogFragment() {
             object : Callback<ResponseBody> {
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if (response.isSuccessful) {
+                        Log.d("rr", response.toString())
+                        val responseBody = response.body()?.string()
+                        if (!responseBody.isNullOrEmpty()) {
+                            try {
+                                // 응답이 비어 있지 않다면 JSON으로 파싱
+                                val jsonResponse = JSONObject(responseBody)
+                                val id = jsonResponse.optString("voice_id")  // "voice_id" 값을 안전하게 추출
+
+                                // VoiceData에 추가
+                                VoiceData.addVoiceItem(VoiceDto(1, voiceName, "2025-01-08", id, false))
+
+                                Log.d(tag, "sendToElevenLabs: Upload successful - Response: $responseBody")
+                            } catch (e: JSONException) {
+                                Log.e(tag, "sendToElevenLabs: JSON parsing error - ${e.message}")
+                            }
+                        } else {
+                            Log.e(tag, "sendToElevenLabs: Empty response body")
+                        }
                         Toast.makeText(requireContext(), "Voice uploaded successfully!", Toast.LENGTH_SHORT).show()
                         Log.d(tag, "sendToElevenLabs: Upload successful - Response: ${response.body()?.string()}")
-
                     } else {
                         Toast.makeText(requireContext(), "Upload failed: ${response.code()}", Toast.LENGTH_SHORT).show()
                         Log.e(tag, "sendToElevenLabs: Upload failed - Code: ${response.code()}, Error: ${response.errorBody()?.string()}")

@@ -51,19 +51,16 @@ class ProfileFragment : Fragment() {
     ): View {
         Log.d(tag, "onCreateView: View creation started")
         val view = inflater.inflate(R.layout.screen_profile, container, false)
-
-        // 초기화
-        initViews(view)
-
-        // SharedPreferences에서 사용자 정보 로드
-        loadUserProfile()
-
         Log.d(tag, "onCreateView: View creation completed")
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // 초기화
+        initViews(view)
+        // SharedPreferences에서 사용자 정보 로드
+        loadUserProfile()
         val voiceSetting = view.findViewById<LinearLayout>(R.id.voice_record)
         val languageSetting = view.findViewById<LinearLayout>(R.id.language)
         val backArrow = view.findViewById<ImageView>(R.id.backButton)

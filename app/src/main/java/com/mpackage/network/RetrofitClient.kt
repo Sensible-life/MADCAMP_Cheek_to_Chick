@@ -37,8 +37,8 @@ data class UserProfile(
 data class LikedBooks(
     val title: String,
     val pages: List<Page>,
-    val likes: Boolean,
-    val ranking: Int,
+    var likes: Boolean,
+    var ranking: Int,
     val createdAt: String,
     val title_img: String
 )

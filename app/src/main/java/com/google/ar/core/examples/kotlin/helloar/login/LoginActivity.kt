@@ -145,13 +145,14 @@ class LoginActivity : AppCompatActivity() {
     }
     private fun saveUserProfileToSharedPreferences(userProfile: UserProfile) {
 
+
         val sharedPreferences = getSharedPreferences("ProfileSharedPreferences", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
 
         editor.putString("username", userProfile.username)
         editor.putString("email", userProfile.email)
         editor.putString("profileImage", userProfile.profileImage)
-        editor.apply() // 저장
+        editor.apply() // 저장*/
 
         // 저장된 값 확인 로그 추가
         Log.d(TAG, "SharedPreferences saved username: ${userProfile.username}")
@@ -159,5 +160,15 @@ class LoginActivity : AppCompatActivity() {
         Log.d(TAG, "SharedPreferences saved profileImage: ${userProfile.profileImage}")
     }
 
+    private fun clearLoginData() {
+        val sharedPreferences = getSharedPreferences("ProfileSharedPreferences", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        editor.remove("username")
+        editor.remove("email")
+        editor.remove("profileImage")
+        editor.apply()
+
+    }
 }
 

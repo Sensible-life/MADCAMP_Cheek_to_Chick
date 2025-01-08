@@ -91,7 +91,7 @@ class BookPageFragment : Fragment() {
 
     // TTS 요청과 음성 파일 재생
     fun sendTTSRequestWithFuel(content: String) {
-        val elevenLabsUrl = "https://api.elevenlabs.io/v1/text-to-speech/fTFTil72L5XZs6FNuoZU/stream?output_format=mp3_22050_32"
+        val elevenLabsUrl = "https://api.elevenlabs.io/v1/text-to-speech/gtH3Ett0fWXfaYH2VOVy/stream?output_format=mp3_22050_32"
         val apiKey = BuildConfig.ELEVEN_API_KEY
         val jsonData = """
         {

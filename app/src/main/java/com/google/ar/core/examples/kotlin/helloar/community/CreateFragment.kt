@@ -61,6 +61,7 @@ class CreateFragment : Fragment() {
             // Fragment 교체
             parentFragmentManager.beginTransaction()
                 .replace(R.id.bigger_content_frame, fragment)
+                .addToBackStack(null)
                 .commit()
         }
 
