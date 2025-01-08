@@ -44,6 +44,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.URL
+import com.google.ar.core.examples.kotlin.helloar.Ranking.RankingFragment
+
 
 
 @Suppress("DEPRECATION")
@@ -211,14 +213,20 @@ class MainActivity : AppCompatActivity() {
             cameraButton.setImageResource(R.drawable.icon_camera_selected)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
-            startActivity(Intent(this, HelloArActivity::class.java))
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.content_frame, RankingFragment())
+                .addToBackStack(null)
+                .commit()
         }
-        cameraButton.setOnClickListener {
+        cameraLayout.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
             cameraButton.setImageResource(R.drawable.icon_camera_selected)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
-            startActivity(Intent(this, HelloArActivity::class.java))
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.content_frame, RankingFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         communityLayout.setOnClickListener {
@@ -281,181 +289,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun send3DRequest() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val client = OkHttpClient.Builder()
-                .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS) // 연결 타임아웃
-                .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)    // 읽기 타임아웃
-                .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)   // 쓰기 타임아웃
-                .build()
-
-            val apiKey = BuildConfig.D_API_KEY
-
-            val mediaType = "application/json".toMediaTypeOrNull()
-            val body = RequestBody.create(
-                mediaType,
-                """
-            {
-                "key" : "$apiKey",
-                "foreground_ratio": "0.85",
-                "prompt": "a ghost wearing white bedsheet",
-                "output_format": "obj",
-                "num_inference_steps": "30",
-                "resolution": 512,
-                "guidance_scale": "3",
-                "ss_sampling_steps": 50,
-                "slat_sampling_steps": 50,
-                "seed": 0,
-                "temp": "no",
-                "webhook": null,
-                "track_id": null
-            }
-            """.trimIndent()
-            )
-
-            val request = Request.Builder()
-                .url("https://modelslab.com/api/v6/3d/text_to_3d")
-                .post(body)
-                .addHeader("Content-Type", "application/json")
-                .build()
-
-            try {
-                val response = client.newCall(request).execute()
-
-                if (response.isSuccessful) {
-                    // 첫 번째 요청의 응답 처리
-                    val responseBody = response.body?.string()
-                    println("Response Body: $responseBody")
-
-                    // JSON 파싱
-                    val jsonResponse = JSONObject(responseBody)
-                    val fetchUrl = jsonResponse.getString("fetch_result") // fetch URL을 가져옵니다.
-                    val id = jsonResponse.getInt("id") // 처리 중인 이미지의 ID 값 추출
-                    Log.d("id", id.toString())
-                    Log.d("fetchUrl", fetchUrl)
-                    delay(60000)
-                    // ID가 있을 경우 fetch API로 요청
-                    fetchResult(id)
-
-                } else {
-                    println("Request failed with status code: ${response.code}")
-                }
-
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun fetchResult(id: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val client = OkHttpClient()
-            val apiKey = BuildConfig.D_API_KEY
-            val mediaType = "application/json".toMediaTypeOrNull()
-            val body = RequestBody.create(
-                mediaType,
-                """
-            {
-                "key" : "$apiKey",
-                "id" : "$id"
-            }
-            """.trimIndent()
-            )
-
-            val request = Request.Builder()
-                .url("https://modelslab.com/api/v6/3d/fetch/$id")
-                .post(body)
-                .addHeader("Content-Type", "application/json")
-                .build()
-
-            try {
-                val response = client.newCall(request).execute()
-
-                if (response.isSuccessful) {
-                    // 응답 본문 출력
-                    val responseBody = response.body?.string()
-                    println("Fetch Response Body: $responseBody")
-
-                    val fetchJsonResponse = JSONObject(responseBody)
-                    val outputLinks = fetchJsonResponse.getJSONArray("output")
-
-                    for (i in 0 until outputLinks.length()) {
-                        val link = outputLinks.getString(i)
-                        println("Output Link: $link")
-
-                        // 링크를 웹 브라우저에서 열기 위해 Intent 사용
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
-                        startActivity(intent)
-                    }
-
-                } else {
-                    println("Request failed with status code: ${response.code}")
-                }
-
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
 
 
-    suspend fun pollFetchResult(fetchUrl: String, eta: Int) {
-        // fetch 상태를 주기적으로 확인
-        val client = OkHttpClient.Builder()
-            .connectTimeout(300, java.util.concurrent.TimeUnit.SECONDS) // 연결 타임아웃
-            .readTimeout(300, java.util.concurrent.TimeUnit.SECONDS)    // 읽기 타임아웃
-            .writeTimeout(300, java.util.concurrent.TimeUnit.SECONDS)   // 쓰기 타임아웃
-            .build()
-        val apiKey = BuildConfig.D_API_KEY
-        val mediaType = "application/json".toMediaTypeOrNull()
-        val body = RequestBody.create(mediaType,
-            """
-            {
-                "key" : "$apiKey"
-            }""".trimIndent())
 
-        val request = Request.Builder()
-            .url(fetchUrl)
-            .post(body)
-            .addHeader("Content-Type", "application/json")
-            .build()
-
-        // 최소 대기 시간 1초로 설정
-        val pollingInterval = 1000L // 1초
-
-        var continuePolling = true
-        while (continuePolling) {
-            try {
-                // 상태를 폴링
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string()
-
-                if (response.isSuccessful) {
-                    val jsonResponse = JSONObject(responseBody)
-                    val status = jsonResponse.getString("status")
-
-                    // "completed" 상태일 때 결과 처리
-                    if (status == "completed") {
-                        val resultUrl = jsonResponse.getJSONArray("future_links").getString(0)
-                        Log.d("Fetch Completed", "Fetched Result URL: $resultUrl")
-                        // 여기서 결과 URL을 사용하여 추가 작업을 진행할 수 있습니다
-                        continuePolling = false
-                    } else {
-                        Log.d("Status", "waiting...")
-                        //Log.d("Status", "Status: $status, Waiting... ETA: ${jsonResponse.opInt("eta", 10)} seconds.")
-                        delay(pollingInterval)  // 주기적으로 상태 확인 (1초 간격)
-                    }
-                } else {
-                    Log.e("Polling Error", "Failed to fetch status: ${response.code}")
-                    continuePolling = false
-                }
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                continuePolling = false
-            }
-        }
-    }
 
 
     fun saveBase64ImageToFile(base64String: String, context: Context, filename: String): String? {
