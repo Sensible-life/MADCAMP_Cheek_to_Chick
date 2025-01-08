@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <!-- 설명 텍스트 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="16dp"
+        android:background="@color/brightYellow">
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icon_arrow"
+            android:layout_marginStart="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="음성 세팅"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/lightBlack"
+            android:fontFamily="@font/g_title_bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- 기본 언어 표시 -->
+    <TextView
+        android:id="@+id/system_language_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="기본"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="16dp"
+        android:paddingStart="16dp"/>
+
+    <TextView
+        android:id="@+id/system_language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="시스템 기본 언어"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="20dp"
+        android:paddingStart="16dp"/>
+
+    <!-- 사용자 언어 선택 -->
+    <TextView
+        android:id="@+id/user_language_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="사용자 설정"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="20dp"
+        android:paddingStart="16dp"/>
+
+    <TextView
+        android:id="@+id/user_language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="한국어"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginBottom="32dp"
+        android:layout_marginLeft="20dp"
+        android:paddingStart="16dp"/>
+
+</LinearLayout>

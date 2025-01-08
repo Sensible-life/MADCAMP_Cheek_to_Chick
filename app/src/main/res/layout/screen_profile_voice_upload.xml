@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Back Icon -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/brightYellow">
+
+    <!-- Voice Name 입력 -->
+    <EditText
+        android:id="@+id/voiceNameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter voice name"
+        android:inputType="text" />
+
+    <!-- 파일 선택 버튼 -->
+    <Button
+        android:clickable="true"
+        android:id="@+id/selectFileButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select File"
+        android:layout_marginTop="16dp" />
+
+    <!-- 서버로 전송 버튼 -->
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upload to ElevenLabs"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

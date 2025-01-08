@@ -1,38 +1,20 @@
 package com.google.ar.core.examples.kotlin.helloar.profile
 
-import android.content.ContentResolver
-import android.content.Context
-import android.database.Cursor
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.ar.core.examples.kotlin.helloar.R
-import com.mpackage.ElevenLabsApi
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
-import android.webkit.MimeTypeMap
 
-class ProfileFragment : Fragment() {
+class VoiceListFragment : Fragment() {
 
     private lateinit var profileImage: ImageView
     private lateinit var userName: TextView
@@ -50,13 +32,10 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         Log.d(tag, "onCreateView: View creation started")
-        val view = inflater.inflate(R.layout.screen_profile, container, false)
-
-        // 초기화
-        initViews(view)
+        val view = inflater.inflate(R.layout.screen_profile_voice_list, container, false)
 
         // SharedPreferences에서 사용자 정보 로드
-        loadUserProfile()
+        // loadUserProfile()
 
         Log.d(tag, "onCreateView: View creation completed")
         return view
@@ -64,50 +43,22 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val voiceSetting = view.findViewById<LinearLayout>(R.id.voice_record)
-        val languageSetting = view.findViewById<LinearLayout>(R.id.language)
-        val backArrow = view.findViewById<ImageView>(R.id.backButton)
-        backArrow.visibility = View.VISIBLE
+        // val voiceSetting = view.findViewById<LinearLayout>(R.id.voice_record)
 
-        backArrow.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
-        voiceSetting.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in_right,
-                    R.anim.slide_out_left,
-                    R.anim.slide_in_left,  // 뒤로 가기 버튼을 눌렀을 때, 새 fragment가 왼쪽에서 오른쪽으로 들어옴
-                    R.anim.slide_out_right  // 기존 fragment가 오른쪽으로 나감
-                )
-                .replace(R.id.content_frame, VoiceListFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-        languageSetting.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    R.anim.slide_in_right,
-                    R.anim.slide_out_left,
-                    R.anim.slide_in_left,  // 뒤로 가기 버튼을 눌렀을 때, 새 fragment가 왼쪽에서 오른쪽으로 들어옴
-                    R.anim.slide_out_right  // 기존 fragment가 오른쪽으로 나감
-                )
-                .replace(R.id.content_frame, LanguageFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-    }
+        val uploadButton = view.findViewById<CardView>(R.id.upload_button)
 
-    // View 초기화
-    private fun initViews(view: View) {
-        Log.d(tag, "initViews: Initializing views")
-        profileImage = view.findViewById(R.id.profileImage)
-        userName = view.findViewById(R.id.userName)
-        userEmail = view.findViewById(R.id.userEmail)
+        uploadButton.setOnClickListener {
+            val dialog = VoiceSettingFragment()
+            dialog.show(parentFragmentManager, "MyDialogFragment")
+        }
+        val voiceList: MutableList<VoiceDto> = VoiceData.getVoiceDataList()
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        recyclerView.adapter = VoiceListAdapter(context = requireContext(), dataList = voiceList)
     }
 
     // SharedPreferences에서 사용자 프로필 정보 로드
-    private fun loadUserProfile() {
+    /*private fun loadUserProfile() {
         Log.d(tag, "loadUserProfile: Loading user profile")
         val sharedPreferences = requireContext().getSharedPreferences("ProfileSharedPreferences", Context.MODE_PRIVATE)
         val username = sharedPreferences.getString("username", "Unknown User")
@@ -149,4 +100,34 @@ class ProfileFragment : Fragment() {
             profileImage.setImageResource(R.drawable.default_profile_image)
         }
     }
+
+
+
+
+    // FileUtils 유틸리티
+    object FileUtils {
+        private val tag: String = "fileUri" // 로그 태그 정의
+        fun getPath(context: Context, uri: Uri): String? {
+            Log.d(tag, "FileUtils: Resolving file path for URI: $uri")
+            val cursor: Cursor? = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val displayNameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (displayNameIndex != -1) {
+                        val displayName = it.getString(displayNameIndex)
+                        val file = File(context.cacheDir, displayName)
+                        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                            file.outputStream().use { outputStream ->
+                                inputStream.copyTo(outputStream)
+                            }
+                        }
+                        Log.d(tag, "FileUtils: File resolved to: ${file.absolutePath}")
+                        return file.absolutePath
+                    }
+                }
+            }
+            Log.e(tag, "FileUtils: Failed to resolve file path")
+            return null
+        }
+    }*/
 }

@@ -53,7 +53,7 @@ class BookPageFragment : Fragment() {
 
         val textView = view.findViewById<TextView>(R.id.page_text)
         val imageView = view.findViewById<ImageView>(R.id.page_image)
-        val playButton = view.findViewById<Button>(R.id.play_button)
+        val playButton = view.findViewById<ImageView>(R.id.play_button)
 
         textView.text = pageContent
 

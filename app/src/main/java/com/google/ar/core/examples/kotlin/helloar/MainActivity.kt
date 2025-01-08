@@ -191,7 +191,9 @@ class MainActivity : AppCompatActivity() {
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.content_frame, HomeFragment()).commit()
+                .replace(R.id.content_frame, HomeFragment())
+                .addToBackStack(null)
+                .commit()
         }
         homeButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home_selected)
@@ -199,7 +201,9 @@ class MainActivity : AppCompatActivity() {
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.content_frame, HomeFragment()).commit()
+                .replace(R.id.content_frame, HomeFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
 
@@ -225,7 +229,8 @@ class MainActivity : AppCompatActivity() {
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.bigger_content_frame, CreateFragment())
-                .addToBackStack(null).commit()
+                .addToBackStack(null)
+                .commit()
         }
         communityButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
@@ -233,7 +238,9 @@ class MainActivity : AppCompatActivity() {
             communityButton.setImageResource(R.drawable.icon_community_selected)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.bigger_content_frame, CreateFragment()).commit()
+                .replace(R.id.bigger_content_frame, CreateFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         profileLayout.setOnClickListener {
@@ -242,7 +249,15 @@ class MainActivity : AppCompatActivity() {
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile_selected)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.content_frame, ProfileFragment()).commit()
+                .setCustomAnimations(
+                    0,
+                    0,
+                    R.anim.slide_in_left,  // 뒤로 가기 버튼을 눌렀을 때, 새 fragment가 왼쪽에서 오른쪽으로 들어옴
+                    R.anim.slide_out_right  // 기존 fragment가 오른쪽으로 나감
+                )
+                .replace(R.id.content_frame, ProfileFragment())
+                .addToBackStack(null)
+                .commit()
         }
         profileButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
@@ -250,7 +265,15 @@ class MainActivity : AppCompatActivity() {
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile_selected)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.content_frame, ProfileFragment()).commit()
+                .setCustomAnimations(
+                    0,
+                    0,
+                    R.anim.slide_in_left,  // 뒤로 가기 버튼을 눌렀을 때, 새 fragment가 왼쪽에서 오른쪽으로 들어옴
+                    R.anim.slide_out_right  // 기존 fragment가 오른쪽으로 나감
+                )
+                .replace(R.id.content_frame, ProfileFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         /*profileButton.setOnClickListener {

@@ -29,16 +29,20 @@
         android:textSize="23sp"
         android:fontFamily="@font/g_title_bold"
         android:textColor="@color/lightBlack"
+        android:lineSpacingExtra="4dp"
         app:layout_constraintTop_toBottomOf="@id/page_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
+    <ImageView
         android:id="@+id/play_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="center|bottom"
-        app:layout_constraintTop_toBottomOf="@id/page_text"
-        app:layout_constraintStart_toStartOf="parent"/>
+        android:layout_marginStart="276dp"
+        android:layout_marginBottom="92dp"
+        android:src="@drawable/sound"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
