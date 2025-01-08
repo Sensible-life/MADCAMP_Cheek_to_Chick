@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity() {
 
         homeLayout.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home_selected)
-            cameraButton.setImageResource(R.drawable.icon_camera)
+            communityButton.setImageResource(R.drawable.icon_ranking)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity() {
         }
         homeButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home_selected)
-            cameraButton.setImageResource(R.drawable.icon_camera)
+            communityButton.setImageResource(R.drawable.icon_ranking)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
 
         cameraLayout.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
-            cameraButton.setImageResource(R.drawable.icon_camera_selected)
+            communityButton.setImageResource(R.drawable.icon_ranking_selected)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
@@ -220,7 +220,7 @@ class MainActivity : AppCompatActivity() {
         }
         cameraButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
-            cameraButton.setImageResource(R.drawable.icon_camera_selected)
+            communityButton.setImageResource(R.drawable.icon_ranking_selected)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
@@ -231,7 +231,7 @@ class MainActivity : AppCompatActivity() {
 
         communityLayout.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
-            cameraButton.setImageResource(R.drawable.icon_camera)
+            communityButton.setImageResource(R.drawable.icon_ranking)
             communityButton.setImageResource(R.drawable.icon_community_selected)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
@@ -241,7 +241,7 @@ class MainActivity : AppCompatActivity() {
         }
         communityButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
-            cameraButton.setImageResource(R.drawable.icon_camera)
+            communityButton.setImageResource(R.drawable.icon_ranking)
             communityButton.setImageResource(R.drawable.icon_community_selected)
             profileButton.setImageResource(R.drawable.icon_profile)
             supportFragmentManager.beginTransaction()
@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity() {
 
         profileLayout.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
-            cameraButton.setImageResource(R.drawable.icon_camera)
+            communityButton.setImageResource(R.drawable.icon_ranking)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile_selected)
             supportFragmentManager.beginTransaction()
@@ -268,7 +268,7 @@ class MainActivity : AppCompatActivity() {
         }
         profileButton.setOnClickListener {
             homeButton.setImageResource(R.drawable.icon_home)
-            cameraButton.setImageResource(R.drawable.icon_camera)
+            communityButton.setImageResource(R.drawable.icon_ranking)
             communityButton.setImageResource(R.drawable.icon_community)
             profileButton.setImageResource(R.drawable.icon_profile_selected)
             supportFragmentManager.beginTransaction()
