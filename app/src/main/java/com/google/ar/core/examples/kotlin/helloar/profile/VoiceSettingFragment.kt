@@ -32,9 +32,10 @@ class VoiceSettingFragment : DialogFragment() {
     private lateinit var profileImage: ImageView
     private lateinit var userName: TextView
     private lateinit var userEmail: TextView
-    private lateinit var selectFileButton: Button
-    private lateinit var sendButton: Button
+    private lateinit var selectFileButton: TextView
+    private lateinit var sendButton: TextView
     private lateinit var voiceNameInput: EditText
+    private lateinit var voiceListAdapter: VoiceListAdapter
     private var selectedFile: File? = null
 
     private val tag = "profile_upload" // 디버깅 로그 태그
@@ -55,6 +56,7 @@ class VoiceSettingFragment : DialogFragment() {
         initViews(view)
         setupFilePicker()
         setupSendButton()
+        // voiceListAdapter = VoiceListAdapter(requireContext(), VoiceData.getVoiceDataList())// 초기 Adapter 설정
 
         Log.d(tag, "onCreateView: View creation completed")
         return view
@@ -128,7 +130,7 @@ class VoiceSettingFragment : DialogFragment() {
 
                                 // VoiceData에 추가
                                 VoiceData.addVoiceItem(VoiceDto(1, voiceName, "2025-01-08", id, false))
-
+                                // voiceListAdapter.notifyDataSetChanged()
                                 Log.d(tag, "sendToElevenLabs: Upload successful - Response: $responseBody")
                             } catch (e: JSONException) {
                                 Log.e(tag, "sendToElevenLabs: JSON parsing error - ${e.message}")

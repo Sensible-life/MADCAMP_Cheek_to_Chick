@@ -47,7 +47,6 @@ class VoiceListFragment : Fragment() {
         // val voiceSetting = view.findViewById<LinearLayout>(R.id.voice_record)
 
         val uploadButton = view.findViewById<CardView>(R.id.upload_button)
-
         uploadButton.setOnClickListener {
             val dialog = VoiceSettingFragment()
             dialog.show(parentFragmentManager, "MyDialogFragment")

@@ -11,27 +11,64 @@
 
     <!-- Voice Name 입력 -->
     <EditText
+        android:layout_marginTop="30dp"
+        android:layout_marginHorizontal="30dp"
         android:id="@+id/voiceNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter voice name"
+        android:hint="음성 이름을 입력하세요"
         android:inputType="text" />
 
-    <!-- 파일 선택 버튼 -->
-    <Button
-        android:clickable="true"
-        android:id="@+id/selectFileButton"
+    <LinearLayout
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginHorizontal="30dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select File"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+
+
+    <!-- 파일 선택 버튼 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp">
+        <TextView
+            android:clickable="true"
+            android:id="@+id/selectFileButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="15dp"
+            android:textSize="11sp"
+            android:fontFamily="@font/g_title_bold"
+            android:textColor="@color/lightBlack"
+            android:background="@color/yellow"
+            android:text="파일 선택" />
+    </androidx.cardview.widget.CardView>
 
     <!-- 서버로 전송 버튼 -->
-    <Button
-        android:id="@+id/sendButton"
+    <androidx.cardview.widget.CardView
+        android:layout_marginLeft="30dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload to ElevenLabs"
-        android:layout_marginTop="16dp" />
+        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp">
+        <TextView
+            android:clickable="true"
+            android:id="@+id/sendButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="15dp"
+            android:textSize="11sp"
+            android:fontFamily="@font/g_title_bold"
+            android:textColor="@color/lightBlack"
+            android:background="@color/yellow"
+            android:text="보이스 클로닝하기" />
+    </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
 </LinearLayout>
